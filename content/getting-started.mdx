@@ -1,0 +1,75 @@
+# Getting Started
+
+## System Requirements
+
+- **macOS** (Apple Silicon recommended, Intel support planned)
+- **Homebrew** installed at `/opt/homebrew` or `/usr/local`
+- No additional configuration needed
+
+## Download
+
+Download the latest release from [GitHub Releases](https://github.com/brewwery/brewwery/releases).
+
+Current builds are available as:
+- `.dmg` — standard macOS disk image
+- `.zip` — compressed app bundle
+
+## Installation
+
+### From DMG
+
+1. Download the `.dmg` file from the latest release.
+2. Open the disk image.
+3. Drag **Brewwery** to your Applications folder.
+4. Launch Brewwery from Applications.
+
+### From ZIP
+
+1. Download the `.zip` file from the latest release.
+2. Unzip the archive.
+3. Move `Brewwery.app` to your Applications folder.
+4. Launch Brewwery.
+
+## Unsigned Build Warning
+
+Current Release Candidate builds are **unsigned and not notarized**. macOS Gatekeeper may display a warning when opening the app for the first time.
+
+To open an unsigned app:
+1. Right-click (or Control-click) on `Brewwery.app`.
+2. Select **Open** from the context menu.
+3. Click **Open** in the confirmation dialog.
+
+This only needs to be done once. Signed and notarized builds are planned for v1.0.
+
+> **Do not** disable Gatekeeper globally. The right-click method is the safe approach.
+
+
+## First Launch
+
+When you first launch Brewwery:
+
+1. **Homebrew Detection** — Brewwery automatically detects your Homebrew installation at `/opt/homebrew/bin/brew` or `/usr/local/bin/brew`.
+2. **Onboarding** — If Homebrew is detected, you'll see your Dashboard. If not, you'll see instructions to install Homebrew.
+3. **Package Loading** — Installed formulae and casks are loaded and displayed on the Dashboard.
+
+## Custom Homebrew Path
+
+If your Homebrew is installed at a non-standard location:
+
+1. Open **Settings** from the sidebar.
+2. Enter your custom Homebrew executable path.
+3. Brewwery validates the path (checks it's absolute, executable, and can run `brew --version`).
+4. Save to apply.
+
+## Uninstall
+
+To completely remove Brewwery and its data:
+
+```bash
+rm -rf "/Applications/Brewwery.app"
+rm -rf "$HOME/Library/Application Support/Brewwery"
+rm -f "$HOME/Library/Preferences/com.brewwery.app.plist"
+rm -rf "$HOME/Library/Saved Application State/com.brewwery.app.savedState"
+```
+
+This removes the app and all local Brewwery preferences. It does **not** affect Homebrew or your installed packages.

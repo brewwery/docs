@@ -1,0 +1,27 @@
+/* Brand accent color (#fe9a00 ≈ hsl(36, 100%, 50%)) used for links,
+   active sidebar items, and other Nextra primary accents. */
+:root {
+  --nextra-primary-hue: 36deg;
+  --nextra-primary-saturation: 100%;
+  --nextra-primary-lightness: 50%;
+}
+
+.dark {
+  --nextra-primary-hue: 36deg;
+  --nextra-primary-saturation: 100%;
+  --nextra-primary-lightness: 50%;
+}
+
+/* Theme-aware logo: light logo on light theme, dark logo on dark theme */
+.brewwery-logo-light {
+  display: block;
+}
+.brewwery-logo-dark {
+  display: none;
+}
+.dark .brewwery-logo-light {
+  display: none;
+}
+.dark .brewwery-logo-dark {
+  display: block;
+}

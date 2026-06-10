@@ -1,0 +1,159 @@
+# Features
+
+Brewwery provides a complete visual interface for managing Homebrew on macOS.
+
+import { ThemeImage } from "../components/ThemeImage";
+
+## Dashboard
+
+The main Dashboard shows your Homebrew status at a glance:
+
+- Total installed formulae and casks
+- Number of outdated packages
+- Running services count
+- Last refresh timestamp
+- Quick access to all sections
+
+<ThemeImage
+  light="/screenshots/Dashboard-Light.png"
+  dark="/screenshots/Dashboard.png"
+  alt="Brewwery Dashboard"
+/>
+
+## Package Management
+
+### Installed Formulae & Casks
+
+See everything Homebrew manages in a filterable, sortable list:
+
+- View all installed formulae with name, version, and status
+- View all installed casks with name, version, and description
+- Filter formulae by category: all, installed on request, or dependencies
+- Search through installed packages locally
+- Sort by name, version, or status
+- Detail drawer with full package metadata
+
+### Package Search & Discovery
+
+Find and explore new Homebrew packages:
+
+- Debounced search across formulae and casks
+- Rich detail cards with homepage, latest version, dependencies, caveats, and install command
+- Shows installed/available state in results
+- Strict validation prevents non-Homebrew input from reaching the shell
+
+<ThemeImage
+  light="/screenshots/Search-Light.png"
+  dark="/screenshots/Search.png"
+  alt="Brewwery package search and discovery"
+/>
+
+### Install & Uninstall
+
+Install or remove packages with full visibility:
+
+- Install formulae or casks after explicit confirmation
+- Uninstall formulae or casks after explicit confirmation
+- Live streaming progress output during operations
+- Operation logged to local history with timestamps and output
+
+
+## Updates
+
+Manage outdated packages:
+
+- See all outdated formulae and casks from `brew outdated`
+- Upgrade individual packages or all at once
+- Explicit `Check for updates` action runs `brew update` with confirmation
+- Streaming progress during upgrades
+- Results logged to operation history
+
+<ThemeImage
+  light="/screenshots/Updates-Light.png"
+  dark="/screenshots/Updates.png"
+  alt="Brewwery Updates panel"
+/>
+
+## Services
+
+Control Homebrew services:
+
+- See all Homebrew services with their current status
+- Start, stop, or restart services with confirmation
+- Status indicators for running, stopped, and errored services
+- Actions logged to history
+
+## Cleanup
+
+Reclaim disk space safely:
+
+- Preview cleanup output before running (`brew cleanup -n`)
+- See removable items and estimated size savings
+- Run cleanup only after explicit confirmation
+- Results logged to history
+
+## Diagnostics
+
+Run health checks on your Homebrew installation:
+
+- Run `brew doctor` visually
+- Parsed diagnostics with clear issue descriptions
+- Copy diagnostics report for sharing
+- Health state indicator
+
+## Brewfile
+
+Export and inspect your Homebrew setup:
+
+- Export a reproducible Brewfile (`brew bundle dump`)
+- Read and inspect Brewfile contents
+- Entries grouped by type (formulae, casks, taps, mas apps)
+- Copy Brewfile contents
+
+## Operation History
+
+Track everything Brewwery does:
+
+- Local history of all operations with timestamps
+- Success and failure states with detailed output
+- Expandable stdout, stderr, and error details
+- Search and filter history entries
+- Export history as JSON
+- Filter to show only failed operations
+- Clear history when needed
+
+## Settings
+
+Configure Brewwery to your preference:
+
+- **Theme** — switch between System, Dark, and warm Light themes
+- **Custom Homebrew path** — validate and save a non-standard brew location
+- **History management** — export or clear operation history
+- **Copy diagnostics** — compact report for troubleshooting
+- **About** — app version, channel, and links
+
+<ThemeImage
+  light="/screenshots/Settings-Light.png"
+  dark="/screenshots/Settings.png"
+  alt="Brewwery Settings"
+/>
+
+## Keyboard Shortcuts
+
+Quick access to common actions:
+
+- **Search** — jump to package search
+- **Refresh** — refresh the current page data
+- **Settings** — open Settings
+- **Close window** — close the Brewwery window
+- **Center window** — `Control+C` centers on screen
+- **Quit** — quit Brewwery
+
+## Tray Menu
+
+Brewwery sits in your menu bar with quick actions:
+
+- Open Brewwery
+- Check for updates
+- Run doctor
+- Quit

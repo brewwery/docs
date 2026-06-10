@@ -1,0 +1,41 @@
+# Contributing
+
+Contributions are welcome! Brewwery is MIT-licensed and developed in public.
+
+## Getting Started
+
+1. Fork the repository on [GitHub](https://github.com/brewwery/brewwery)
+2. Clone your fork
+3. Install dependencies: `pnpm install`
+4. Start development: `pnpm dev`
+
+## Guidelines
+
+- **Keep changes scoped and readable**
+- **macOS-first** — Brewwery is intentionally macOS-only
+- **Prefer read-only operations** unless a feature explicitly needs mutation
+- **Do not add**: telemetry, authentication, cloud sync, or monetization
+- **Keep UI consistent** with the dark macOS utility aesthetic
+- **Typed IPC** — add shared data shapes to `packages/shared-types` before wiring new IPC
+- **Explicit confirmation** — all mutating operations must require user confirmation
+
+## Development Setup
+
+See the [Development](/development) guide for full setup instructions.
+
+## Pull Requests
+
+- Keep PRs focused on a single change
+- Include a clear description of what changed and why
+- Ensure `pnpm typecheck` and `pnpm lint` pass
+- Test your changes with a local Homebrew installation
+
+## Reporting Issues
+
+Use [GitHub Issues](https://github.com/brewwery/brewwery/issues) with the provided templates:
+- **Bug reports** — include steps to reproduce, expected behavior, and screenshots
+- **Feature requests** — describe the use case and proposed solution
+
+## Code of Conduct
+
+Please keep interactions respectful and constructive.

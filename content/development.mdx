@@ -1,0 +1,108 @@
+# Development
+
+## Requirements
+
+- **macOS** (Apple Silicon recommended)
+- **Node.js 24**
+- **pnpm 10**
+- **Rust toolchain** for `crates/brewwery-core`
+- **Homebrew** for live package data (app runs without it in demo mode)
+
+## Quick Start
+
+```bash
+# Install dependencies
+pnpm install
+
+# Start development mode
+pnpm dev
+
+# Build for production
+pnpm build
+```
+
+## Build Commands
+
+| Command | Description |
+| --- | --- |
+| `pnpm dev` | Start the Electron app in dev mode |
+| `pnpm build` | Build shared-types, Rust core, and desktop |
+| `pnpm build:core` | Build only the Rust native core |
+| `pnpm typecheck` | Run TypeScript checks across all packages |
+| `pnpm lint` | Run linting across all packages |
+
+## Packaging Commands
+
+| Command | Description |
+| --- | --- |
+| `pnpm package:mac` | Build unsigned arm64 DMG + ZIP |
+| `pnpm package:mac:dir` | Build `.app` without DMG |
+| `pnpm package:mac:zip` | Build ZIP without DMG |
+| `pnpm package:mac:x64` | Build for Intel (requires x86_64 target) |
+| `pnpm package:mac:universal` | Build universal binary |
+| `pnpm package:clean` | Clean packaging artifacts |
+
+
+## Verification Commands
+
+| Command | Description |
+| --- | --- |
+| `pnpm release:verify` | Full verification: typecheck, lint, Rust tests, build, package |
+| `pnpm beta:clean-install` | Clean old app data for fresh testing |
+
+## Building the Rust Core
+
+```bash
+pnpm --filter @brewwery/brewwery-core build
+```
+
+The Rust crate at `crates/brewwery-core` compiles to a Node.js native addon via napi-rs. It handles Homebrew detection, command execution, JSON parsing, and validation.
+
+## Workspace Structure
+
+Brewwery uses pnpm workspaces:
+
+```yaml
+packages:
+  - "desktop"          # Electron desktop app
+  - "packages/*"       # shared-types
+  - "crates/*"         # Rust napi-rs core
+```
+
+### Package Names
+
+| Package | Name |
+| --- | --- |
+| Desktop app | `@brewwery/desktop` |
+| Shared types | `@brewwery/shared-types` |
+| Rust core | `@brewwery/brewwery-core` |
+
+## Packaging & Distribution
+
+Brewwery uses `electron-builder` with:
+
+- **App name**: Brewwery
+- **Bundle identifier**: `com.brewwery.app`
+- **macOS category**: `public.app-category.utilities`
+- **Primary target**: Apple Silicon `arm64`
+- **Artifacts**: unsigned `.dmg` and `.zip`
+
+### Local DMG Issues
+
+Local DMG creation may fail with `hdiutil create ... -fs APFS` on some machines. Workarounds:
+
+1. Use `pnpm package:mac:dir` or `pnpm package:mac:zip` for local testing
+2. Let GitHub Actions build the DMG on a clean macOS runner
+
+## Development Notes
+
+- The desktop app runs without Homebrew and shows Homebrew-not-found states
+- Mutating Homebrew actions must remain allowlisted with explicit confirmation
+- Add shared data shapes to `packages/shared-types` before wiring new IPC
+- Keep UI changes consistent with the dark macOS utility aesthetic
+- Do not add telemetry, authentication, cloud sync, or monetization
+
+
+## Signing & Notarization
+
+Current builds are **unsigned and not notarized**. Signed and notarized Apple Silicon builds are planned for v1.0. Until then, macOS Gatekeeper may warn when opening a downloaded build — right-click the app and choose **Open** to launch it.

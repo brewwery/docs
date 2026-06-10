@@ -1,0 +1,144 @@
+# Architecture
+
+Brewwery is a macOS-first Electron app with a narrow main-process API over local Homebrew commands.
+
+## Overview
+
+```text
+┌──────────────────────────────────────────────┐
+│              Renderer (React)                 │
+│      Zustand state, Tailwind UI, pages       │
+│           (sandboxed, no Node)               │
+├──────────────────────────────────────────────┤
+│            Preload Bridge                    │
+│         window.brewwery typed API            │
+├──────────────────────────────────────────────┤
+│          Electron Main Process               │
+│       IPC handlers, window, tray            │
+├──────────────────────────────────────────────┤
+│     Rust Core (napi-rs)  │  Streaming Runner │
+│  Homebrew detection,     │  install/upgrade  │
+│  parsing, validation     │  with shell:false │
+└──────────────────────────────────────────────┘
+               │
+        Local Homebrew CLI
+```
+
+## Project Structure
+
+```text
+.
+├── desktop/                 # Electron desktop app
+│   ├── src/main/           # Electron lifecycle, windows, IPC handlers
+│   ├── src/renderer/       # React UI, pages, components, state
+│   └── src/preload/        # Typed preload bridge
+├── crates/brewwery-core/    # Rust napi-rs native core
+├── packages/shared-types/   # Shared TypeScript IPC contracts
+├── docs/                    # Project documentation
+├── scripts/                 # Helper scripts
+└── package.json             # pnpm workspace root
+```
+
+
+## Layer Details
+
+### Renderer
+
+- **Framework**: React with TypeScript
+- **State**: Zustand stores for UI and application state
+- **Styling**: Tailwind CSS with shadcn/ui-style components
+- **Build**: Vite via electron-vite
+- **Security**: Runs with context isolation, sandbox enabled, no Node integration
+- **API access**: Only through the typed `window.brewwery` preload API
+
+### Preload Bridge
+
+The preload script exposes a narrow, typed API on `window.brewwery`. The renderer never has direct access to Node.js, IPC, or shell commands.
+
+### Electron Main
+
+Handles:
+- Application lifecycle and windows
+- Tray menu and keyboard shortcuts
+- IPC handler registration
+- Forwarding typed requests to Rust or streaming runner
+- Settings persistence in `userData`
+
+### Rust Core (napi-rs)
+
+The native Rust addon handles:
+- Homebrew detection (`/opt/homebrew`, `/usr/local`, custom path)
+- Command execution with validated arguments
+- JSON parsing and normalization into Brewwery models
+- Package name validation
+- Search query validation
+- Custom Homebrew path validation
+
+### Streaming Runner
+
+For operations that need live progress output (install, uninstall, upgrade):
+- Uses fixed argv arrays with `shell: false`
+- Streams stdout/stderr chunks to renderer as progress events
+- Uses the same validated Homebrew path as the Rust runner
+
+## IPC Protocol
+
+All IPC calls return a typed response:
+
+```typescript
+type IpcResponse<T> = {
+  ok: boolean;
+  data?: T;
+  error?: {
+    code: string;
+    message: string;
+    raw?: string;
+  };
+};
+```
+
+### Error Codes
+
+| Code | Meaning |
+| --- | --- |
+| `HOMEBREW_NOT_FOUND` | Homebrew is not installed or not at expected paths |
+| `BREW_COMMAND_FAILED` | A Homebrew command returned an error |
+| `BREW_JSON_PARSE_FAILED` | Homebrew JSON output could not be parsed |
+| `PERMISSION_DENIED` | Operation not allowed |
+| `UNSUPPORTED_PLATFORM` | Not running on macOS |
+| `UNKNOWN_ERROR` | Unexpected error |
+
+
+### IPC Channels
+
+Brewwery uses typed channels for each operation category:
+
+- `system:detectHomebrew` — detect Homebrew installation
+- `system:getBrewInfo` — get Homebrew version, prefix, architecture
+- `packages:listFormulae` — list installed formulae
+- `packages:listCasks` — list installed casks
+- `packages:install` — install a formula or cask
+- `packages:uninstall` — uninstall a formula or cask
+- `updates:listOutdated` — list outdated packages
+- `updates:upgrade` — upgrade packages
+- `services:list` — list Homebrew services
+- `services:action` — start, stop, or restart a service
+- `cleanup:preview` — preview cleanup
+- `cleanup:run` — run cleanup
+- `doctor:run` — run brew doctor
+- `brewfile:export` — export Brewfile
+- `brewfile:read` — read a Brewfile
+
+## Tech Stack
+
+| Layer | Technology |
+| --- | --- |
+| Desktop framework | Electron |
+| UI framework | React |
+| Language | TypeScript |
+| Build tool | Vite + electron-vite |
+| Styling | Tailwind CSS |
+| Components | shadcn/ui-style local components |
+| State | Zustand |
+| Native core | Rust compiled with napi-rs |
+| Package manager | pnpm workspaces |

@@ -1,0 +1,109 @@
+# Changelog
+
+All notable changes to Brewwery.
+
+## v0.9.0 — Release Candidate
+
+### Added
+- `APP_CHANNEL` is now `Release Candidate`
+- Release Candidate release notes and QA checklist
+- Signing and notarization preparation guide
+- macOS signing entitlements for future Developer ID builds
+
+### Improved
+- All documentation updated for v0.9.0 Release Candidate status
+- Known limitations documented as release decisions
+- Feature freeze documented before v1.0
+
+### Known
+- Unsigned and not notarized while signing assets are prepared
+- Apple Silicon is the primary verified build target
+- Cleanup and service actions show final output only (no streaming progress)
+
+## v0.8.2 — Light Theme QA Polish
+
+### Fixed
+- Light theme sidebar logo readability
+- Light theme status color contrast
+- macOS window resize, maximize, and fullscreen controls
+- Window centering reliability
+
+### Improved
+- Status badges, toasts, progress panels use shared theme tokens
+
+## v0.8.1 — Light Theme & Visual Polish
+
+### Added
+- Working theme selector: System, Dark, and warm Light
+- Theme persistence in local settings
+- Theme tokens across all components
+
+## v0.8.0 — Launch Candidate
+
+### Added
+- `pnpm release:verify` verification command
+- GitHub issue templates for bugs and feature requests
+
+### Improved
+- Standardized button labels
+- Hidden placeholder actions from UI
+
+
+## v0.7.x — Private Beta
+
+- History render batching for large logs
+- History and progress output trimming
+- Friendly error messages with expandable technical details
+- Search installed state reconciliation
+- Invalid discovery search query handling
+- Explicit `Check for updates` action
+- Window centering and sizing fixes
+
+## v0.6.x — Private Alpha
+
+- Settings Copy diagnostics action
+- Dashboard last-refreshed state and services preview
+- History failed-only filter
+- Alpha/beta verification and clean-install commands
+- ZIP and `.app` local verification paths
+
+## v0.5.x — Distribution & Polish
+
+- Production electron-builder macOS config
+- Unsigned Apple Silicon DMG/ZIP packaging
+- GitHub Actions CI and release workflows
+- Tray menu, keyboard shortcuts, onboarding
+- Settings page with Homebrew path, theme, history, About
+- Custom Homebrew path validation in Rust
+- Local `.app` testing workflow
+
+## v0.4.x — Search & Discovery
+
+- Dedicated Homebrew discovery/search page
+- Package install and uninstall with confirmation
+- Streaming progress output for install/uninstall/upgrade
+- Strict package name validation
+
+## v0.3.x — Cleanup, Doctor & Brewfile
+
+- Cleanup preview and execution with confirmation
+- Brew doctor diagnostics parsing
+- Brewfile export and read
+- Local operation history with search and export
+- Result toasts
+
+## v0.2.0 — Updates & Services
+
+- Outdated package detection and upgrade flows
+- Service status and start/stop/restart with confirmation
+- Dashboard backed by real data
+
+## v0.1.x — Foundation
+
+- pnpm workspace scaffold
+- Electron + React + Vite + TypeScript
+- Tailwind CSS dark theme
+- Rust napi-rs core
+- Homebrew detection and package/cask listing
+- Package detail drawers with search, sort, filter
+- Read-only operation model

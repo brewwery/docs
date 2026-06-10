@@ -1,0 +1,91 @@
+# Roadmap
+
+## Current: v0.9.0 Release Candidate
+
+Feature freeze is active. Only the following changes land before v1.0:
+- Bug fixes
+- Documentation updates
+- Packaging fixes
+- QA findings
+- Release pipeline polish
+- Security review fixes
+
+## Completed Versions
+
+### v0.1 — Foundation
+- pnpm workspace scaffold
+- Electron + React + Vite + TypeScript app shell
+- Tailwind CSS dark theme with shadcn/ui-style components
+- Zustand state management
+- Sidebar navigation and status bar
+- Shared IPC contracts and Rust napi-rs core scaffold
+- Homebrew detection and read-only package/cask listing
+
+### v0.2 — Updates & Services
+- Outdated package detection and upgrade flows
+- Service status, start/stop/restart with confirmation
+- Real data backing Dashboard counts
+
+### v0.3 — Cleanup, Doctor & Brewfile
+- Cleanup preview and execution with confirmation
+- Brew doctor diagnostics
+- Brewfile export and read
+- Local operation history with search and export
+
+### v0.4 — Search & Discovery
+- Dedicated Homebrew discovery/search page
+- Package install and uninstall with confirmation
+- Streaming progress output for install/uninstall/upgrade
+- Strict package name validation
+
+### v0.5 — Distribution & Polish
+- electron-builder macOS configuration
+- Apple Silicon DMG/ZIP packaging
+- GitHub Actions CI and release workflows
+- Tray menu, keyboard shortcuts, onboarding, Settings
+- Custom Homebrew path validation in Rust
+
+
+### v0.6 — Private Alpha
+- Private alpha release with install guide
+- QA checklist, known issues, verification docs
+- Settings diagnostics copy, dashboard improvements
+
+### v0.7 — Private Beta
+- History render batching and output trimming
+- Friendly error messages with expandable details
+- Search installed state reconciliation
+- Explicit `Check for updates` action
+- Window sizing and centering fixes
+
+### v0.8 — Launch Candidate
+- Issue templates for bugs and feature requests
+- Standardized UI labels
+- Light theme support (System, Dark, Light)
+- Theme tokens across all components
+- Window resize/fullscreen fixes
+
+### v0.9 — Release Candidate
+- Final packaging verification
+- Signing and notarization preparation
+- Known limitations documented as release decisions
+- Feature freeze
+
+## Planned: v1.0
+
+- Signed and notarized macOS build
+- Final QA pass
+- Public release
+
+## Future
+
+- Universal macOS build validation (Intel + Apple Silicon)
+- Accessibility polish
+- Contributor-friendly test fixtures
+- Automatic app updates
+
+## Out of Scope
+
+- Linux support
+- Windows support
+- Package managers beyond Homebrew

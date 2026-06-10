@@ -1,0 +1,134 @@
+# Security
+
+Brewwery is a local-first macOS app. It is conservative by design because it sits between the user and a package manager.
+
+## Principles
+
+- **No telemetry** — zero data collection, no analytics in the app
+- **No authentication** — no accounts, no login
+- **No cloud sync** — everything stays on your machine
+- **No monetization** — no paid tiers, no donations logic
+- **No background mutations** — Homebrew state is never changed without your knowledge
+- **No arbitrary shell execution** — only allowlisted Homebrew commands
+
+## Electron Security
+
+The renderer process runs with maximum isolation:
+
+| Setting | Value |
+| --- | --- |
+| Context isolation | Enabled |
+| Sandbox | Enabled |
+| Node integration | Disabled |
+| Remote module | Disabled |
+| Preload API | Narrow typed `window.brewwery` only |
+| External links | Opened in OS browser, denied inside app |
+
+## Command Execution Model
+
+Homebrew commands flow through typed IPC and are executed through predefined, allowlisted operations:
+
+1. Renderer calls `window.brewwery.someMethod(args)` via the preload bridge
+2. Preload forwards to Electron main via typed IPC
+3. Main process calls the Rust native addon or streaming runner
+4. Only predefined Homebrew commands can run
+5. There is no generic shell command IPC
+
+
+### Validation Rules
+
+- Package/cask names: only ASCII letters, digits, `@`, `-`, `_`, `.`, `+`
+- Spaces, shell metacharacters, redirection characters, and newlines are rejected
+- Validation happens before the Rust runner is invoked
+- Search queries: same ASCII allowlist, validated in both renderer and Rust
+- Custom Homebrew path: must be absolute, executable, and pass `brew --version`
+
+### Streaming Operations
+
+For install, uninstall, and upgrade:
+- Fixed argv arrays with `shell: false`
+- Renderer receives progress events only
+- Cannot provide arbitrary commands
+
+## Mutating Operations
+
+All operations that change system state require **explicit user confirmation**:
+
+| Operation | Confirmation Required |
+| --- | --- |
+| Install formula/cask | Yes |
+| Uninstall formula/cask | Yes |
+| Upgrade package(s) | Yes |
+| Run `brew update` | Yes |
+| Start/stop/restart service | Yes |
+| Run cleanup | Yes (preview required first) |
+
+Cleanup is never run automatically — it requires viewing the preview output first, then explicit confirmation.
+
+## Environment Variables
+
+Brewwery sets these in all Homebrew command environments:
+
+```bash
+HOMEBREW_NO_AUTO_UPDATE=1
+HOMEBREW_NO_ANALYTICS=1
+```
+
+This prevents Homebrew from auto-updating or sending analytics during Brewwery operations.
+
+## Supported Commands
+
+The complete list of Homebrew commands Brewwery can execute:
+
+```bash
+# Read-only
+brew --version
+brew config
+brew list --formula --json=v2
+brew list --cask --json=v2
+brew outdated --json=v2
+brew services list --json
+brew cleanup -n               # preview only
+brew doctor
+brew search --formula <query>
+brew search --cask <query>
+brew info --json=v2 <formula>
+brew info --cask --json=v2 <cask>
+
+# Mutating (require confirmation)
+brew update
+brew upgrade <formula>
+brew upgrade --cask <cask>
+brew upgrade                  # upgrade all
+brew services start <service>
+brew services stop <service>
+brew services restart <service>
+brew cleanup
+brew bundle dump --force --file=<path>
+brew install <formula>
+brew install --cask <cask>
+brew uninstall <formula>
+brew uninstall --cask <cask>
+```
+
+No other commands are possible. There is no `sudo`, no arbitrary shell access, and no generic command runner.
+
+
+## Data Storage
+
+- **Operation history** — stored in renderer `localStorage`, never sent anywhere
+- **Settings** — stored in Electron `userData` on the local filesystem
+- **No cookies** for tracking
+- **No network calls** to external servers from the desktop app
+- **History is trimmed** — large stdout/stderr output is capped to keep the app responsive
+
+## What Brewwery Does NOT Include
+
+- No telemetry or crash reporting
+- No cloud sync or backup
+- No authentication or accounts
+- No paid features, pro tiers, or subscriptions
+- No donation or support links
+- No automatic updates (yet)
+- No sudo or elevated privileges
+- No background processes that modify Homebrew state
