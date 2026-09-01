@@ -2,6 +2,8 @@
 
 Documentation site for [Brewwery](https://www.brewwery.com) — macOS GUI for Homebrew.
 
+The docs cover Taps, Homebrew Leaves, dependency inspection, background update indicators, and keyboard-friendly virtualized package lists.
+
 Hosted at [docs.brewwery.com](https://docs.brewwery.com).
 
 ![og-image](public/og-image.png)

@@ -28,10 +28,20 @@ See everything Homebrew manages in a filterable, sortable list:
 
 - View all installed formulae with name, version, and status
 - View all installed casks with name, version, and description
-- Filter formulae by category: all, installed on request, or dependencies
+- Filter formulae by category: all, Homebrew Leaves, installed on request, or dependencies
 - Search through installed packages locally
 - Sort by name, version, or status
-- Detail drawer with full package metadata
+- Detail drawer with dependencies and installed dependents
+- Virtualized rows with Arrow, Home, End, Enter, and Space keyboard controls
+
+### Taps
+
+Manage additional Homebrew repositories safely:
+
+- List installed official and third-party taps
+- Add taps using a validated `owner/repository` name
+- Remove taps after explicit confirmation
+- Keep tap and untap results in local History
 
 ### Package Search & Discovery
 
@@ -72,10 +82,13 @@ Install or remove packages with full visibility:
 Manage outdated packages:
 
 - See all outdated formulae and casks from `brew outdated`
+- Show the read-only outdated count in the macOS Dock badge during background checks
 - Upgrade individual packages or all at once
 - Explicit `Check for updates` action runs `brew update` with confirmation
 - Streaming progress during upgrades
 - Results logged to operation history
+
+Background checks never run `brew update` or mutate installed packages.
 
 <ThemeImage
   light="/screenshots/Updates-Light.png"

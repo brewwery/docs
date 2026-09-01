@@ -2,6 +2,31 @@
 
 All notable changes to Brewwery.
 
+## v0.9.7 — Package Intelligence & Taps
+
+### Added
+- Dedicated Homebrew Taps page with validated add/remove actions and confirmations.
+- Homebrew Leaves filter and installed dependents in formula details.
+- Read-only background outdated checks with a macOS Dock badge count.
+- Virtualized Packages and Casks lists with keyboard row navigation.
+
+### Security
+- Background checks only run `brew outdated --json=v2` and never mutate Homebrew state.
+- Tap names use a strict `owner/repository` allowlist and tap mutations require confirmation.
+
+## v0.9.6 — Accessibility & Docs Consistency
+
+### Added
+- Shared keyboard focus rings for buttons, inputs, and tabs.
+- Accessible confirmation dialogs and package detail drawers with Escape-to-close behavior.
+
+### Changed
+- Release documentation and known limitations now match the current Release Candidate.
+- Accessibility labels identify the package affected by detail drawer actions.
+
+### Security
+- No new Homebrew commands, IPC channels, telemetry, cloud sync, accounts, or paid feature surface were added.
+
 ## v0.9.5 — Cleanup & Services Streaming
 
 ### Added

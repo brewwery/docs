@@ -62,6 +62,7 @@ All operations that change system state require **explicit user confirmation**:
 | Run `brew update` | Yes |
 | Start/stop/restart service | Yes |
 | Run cleanup | Yes (preview required first) |
+| Add/remove Homebrew tap | Yes |
 
 Cleanup is never run automatically — it requires viewing the preview output first, then explicit confirmation.
 
@@ -94,6 +95,9 @@ brew search --formula <query>
 brew search --cask <query>
 brew info --json=v2 <formula>
 brew info --cask --json=v2 <cask>
+brew leaves
+brew uses --installed <formula>
+brew tap
 
 # Mutating (require confirmation)
 brew update
@@ -109,7 +113,11 @@ brew install <formula>
 brew install --cask <cask>
 brew uninstall <formula>
 brew uninstall --cask <cask>
+brew tap <owner/repository>
+brew untap <owner/repository>
 ```
+
+The background Dock badge uses only `brew outdated --json=v2`. It does not run `brew update` or any package mutation. Tap names must match a strict ASCII `owner/repository` format before the Rust runner receives them.
 
 No other commands are possible. There is no `sudo`, no arbitrary shell access, and no generic command runner.
 
