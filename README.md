@@ -1,8 +1,8 @@
 # Brewwery Docs
 
-Documentation site for [Brewwery](https://www.brewwery.com) — macOS GUI for Homebrew.
+Documentation site for [Brewwery](https://www.brewwery.com) — the native macOS app for Homebrew.
 
-The docs cover Taps, Homebrew Leaves, dependency inspection, background update indicators, and keyboard-friendly virtualized package lists.
+The docs cover installing and using Brewwery 1.0, Homebrew basics and commands, troubleshooting, the security model, the Swift architecture, and development and release workflows.
 
 Hosted at [docs.brewwery.com](https://docs.brewwery.com).
 
@@ -12,7 +12,7 @@ Hosted at [docs.brewwery.com](https://docs.brewwery.com).
 
 - [Next.js 16](https://nextjs.org)
 - [Nextra 4](https://nextra.site) (docs theme)
-- Static export for deployment
+- Swift app screenshots in `public/screenshots`
 
 ## Development
 
@@ -29,7 +29,7 @@ Open [http://localhost:3000](http://localhost:3000).
 npm run build
 ```
 
-Static output is written to the `out/` directory, ready for deployment to any static hosting (Vercel, Cloudflare Pages, Netlify, etc.).
+Pages are prerendered into `.next/`. Serve them with `npm start`.
 
 ## Structure
 
@@ -45,14 +45,18 @@ docs/
 │   ├── index.mdx           # Introduction
 │   ├── getting-started.mdx
 │   ├── features.mdx
-│   ├── architecture.mdx
+│   ├── what-is-homebrew.mdx
+│   ├── brew-commands.mdx
+│   ├── troubleshooting.mdx
 │   ├── security.mdx
+│   ├── architecture.mdx
 │   ├── development.mdx
 │   ├── roadmap.mdx
 │   ├── changelog.mdx
 │   ├── faq.mdx
 │   └── contributing.mdx
 ├── public/                 # Static assets
+│   ├── screenshots/        # App screenshots (dark and -Light variants)
 │   └── og-image.png        # Open Graph image for social sharing
 ├── mdx-components.tsx      # MDX component configuration
 ├── next.config.mjs         # Next.js + Nextra config
@@ -62,7 +66,9 @@ docs/
 
 ## Deployment
 
-The site exports as fully static HTML. Deploy the `out/` directory to any static hosting provider with a custom domain pointing to `docs.brewwery.com`.
+Build with `npm run build` and serve with `npm start` behind the `docs.brewwery.com` domain.
+
+Screenshots come from `Scripts/screenshots.sh` in the [app repository](https://github.com/brewwery/brewwery); copy the generated PNGs into `public/screenshots/`.
 
 ## Repository
 

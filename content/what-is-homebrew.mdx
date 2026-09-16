@@ -1,0 +1,65 @@
+# What is Homebrew?
+
+[Homebrew](https://brew.sh) is the most popular package manager for macOS. It installs command-line tools, programming languages, databases, and Mac apps with a single command, keeps them up to date, and removes them cleanly.
+
+Brewwery is a graphical app for Homebrew. It is not part of the Homebrew project — Homebrew does the actual work, and Brewwery gives you a window to see and control it.
+
+## Why use a package manager?
+
+Without a package manager you download installers from many websites, update each app separately, and lose track of what is installed. Homebrew replaces that with one consistent tool:
+
+- **Install** — `brew install git` downloads, verifies, and installs Git and everything it needs
+- **Update** — `brew upgrade` brings every installed package up to date
+- **Remove** — `brew uninstall git` removes it again
+- **Reproduce** — a Brewfile lists your setup so a new Mac can be configured in one step
+
+## Key terms
+
+| Term | Meaning |
+| --- | --- |
+| **Formula** | A package built from source or installed from a prebuilt binary, usually a command-line tool or library — for example `git`, `node`, or `postgresql@17` |
+| **Cask** | A package for a Mac app, font, or other prebuilt binary — for example `visual-studio-code` or `docker-desktop` |
+| **Tap** | An extra repository of formulae and casks, named `owner/repository` — for example `hashicorp/tap` |
+| **Bottle** | A prebuilt binary of a formula, so it installs without compiling |
+| **Leaf** | An installed formula that no other installed formula depends on — usually something you installed on purpose |
+| **Dependency** | A formula installed because another formula needs it |
+| **Service** | A formula that runs in the background, such as a database, managed with `brew services` |
+| **Brewfile** | A text file listing taps, formulae, casks, and Mac App Store apps, used by `brew bundle` |
+| **Prefix** | Where Homebrew lives: `/opt/homebrew` on Apple Silicon and `/usr/local` on Intel |
+
+## Install Homebrew
+
+Homebrew's official installer is on [brew.sh](https://brew.sh). Open **Terminal** and run the command shown there:
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+The installer explains each step and asks for your password before it changes anything. It may also install Apple's Command Line Tools.
+
+When it finishes, follow the **Next steps** it prints to add Homebrew to your shell. On Apple Silicon that is usually:
+
+```bash
+echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
+eval "$(/opt/homebrew/bin/brew shellenv)"
+```
+
+Check that it works:
+
+```bash
+brew --version
+```
+
+Then open Brewwery, or click **Refresh data** if it is already open.
+
+## How Brewwery fits in
+
+Everything Brewwery does is a regular Homebrew command. When you install a package in Brewwery, it runs `brew install <name>`; when you open Updates, it runs `brew outdated`. Brewwery shows the exact command before anything that changes your system, and the [Commands](/brew-commands) page lists what they do if you want to use them in Terminal too.
+
+You can freely mix Brewwery and Terminal — they use the same Homebrew installation. Click **Refresh** (`⌘R`) in Brewwery after making changes in Terminal.
+
+## Learn more
+
+- [Homebrew documentation](https://docs.brew.sh)
+- [Homebrew FAQ](https://docs.brew.sh/FAQ)
+- [Brew command reference in these docs](/brew-commands)

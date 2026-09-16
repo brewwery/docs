@@ -1,98 +1,67 @@
 # Roadmap
 
-## Current: v0.9.7 — Package Intelligence & Taps
+## Current: v1.0 — Native macOS App
 
-Active development. Recent additions:
-- Homebrew Taps management with confirmation-gated add and remove actions
-- Homebrew Leaves and installed dependents in package details
-- Read-only background outdated checks with a macOS Dock badge
-- Virtualized Packages and Casks lists with keyboard navigation
+Brewwery 1.0 is a complete native rewrite in Swift:
 
-## Completed Versions
+- SwiftUI and AppKit app with every screen and workflow from 0.9.7
+- Universal binary for Apple Silicon and Intel, macOS 14 or later
+- Developer ID signing and Apple notarization
+- Automatic app updates with Sparkle
+- A typed Homebrew command layer with no shell, and cancellation that stops every child process
+- Test suites that never touch the real Homebrew, plus an opt-in live suite
 
-### v0.1 — Foundation
-- pnpm workspace scaffold
-- Electron + React + Vite + TypeScript app shell
-- Tailwind CSS dark theme with shadcn/ui-style components
-- Zustand state management
-- Sidebar navigation and status bar
-- Shared IPC contracts and Rust napi-rs core scaffold
-- Homebrew detection and read-only package/cask listing
+## Next
 
-### v0.2 — Updates & Services
-- Outdated package detection and upgrade flows
-- Service status, start/stop/restart with confirmation
-- Real data backing Dashboard counts
+- **Localized interface** — the languages already available on [brewwery.com](https://www.brewwery.com) inside the app
+- **Brewfile workflows** — install from a Brewfile and compare a Brewfile with what is installed
 
-### v0.3 — Cleanup, Doctor & Brewfile
-- Cleanup preview and execution with confirmation
-- Brew doctor diagnostics
-- Brewfile export and read
-- Local operation history with search and export
+Priorities follow feedback. Suggest a feature in [GitHub Discussions](https://github.com/brewwery/brewwery/discussions) or pick up an [issue](https://github.com/brewwery/brewwery/issues).
 
-### v0.4 — Search & Discovery
-- Dedicated Homebrew discovery/search page
-- Package install and uninstall with confirmation
-- Streaming progress output for install/uninstall/upgrade
-- Strict package name validation
+## History
 
-### v0.5 — Distribution & Polish
-- electron-builder macOS configuration
-- Apple Silicon DMG/ZIP packaging
-- GitHub Actions CI and release workflows
-- Tray menu, keyboard shortcuts, onboarding, Settings
-- Custom Homebrew path validation in Rust
-
-
-### v0.6 — Private Alpha
-- Private alpha release with install guide
-- QA checklist, known issues, verification docs
-- Settings diagnostics copy, dashboard improvements
-
-### v0.7 — Private Beta
-- History render batching and output trimming
-- Friendly error messages with expandable details
-- Search installed state reconciliation
-- Explicit `Check for updates` action
-- Window sizing and centering fixes
+### v0.9 — Discover, Favorites, and Package Intelligence
+- Discover collections and Favorites
+- Taps management, Homebrew Leaves, and installed dependents
+- Dock badge for outdated packages
+- Streaming progress, cancellation, and timeouts for services and cleanup
+- Accessibility improvements to focus, dialogs, and drawers
 
 ### v0.8 — Launch Candidate
-- Issue templates for bugs and feature requests
-- Standardized UI labels
-- Light theme support (System, Dark, Light)
+- Light theme alongside System and Dark
 - Theme tokens across all components
-- Window resize/fullscreen fixes
+- Issue templates and standardized labels
 
-### v0.9 — Discover & Favorites
-- Favorites — mark packages as favorites and access them from a dedicated view
-- Favorites persist across sessions in local settings
-- Search & Discovery page improvements
-- Signing and notarization preparation
-- Final packaging verification
+### v0.7 — Private Beta
+- Friendlier error messages with expandable details
+- History output trimming and faster rendering
+- Explicit **Check for updates** action
 
-## Planned: v1.0
+### v0.6 — Private Alpha
+- Install guide, QA checklist, and diagnostics copy
 
-- Signed and notarized macOS build
-- Final QA pass
-- Public release
+### v0.5 — Distribution and Polish
+- macOS packaging, menu bar, keyboard shortcuts, and Settings
+- Custom Homebrew path validation
 
-## v0.9.7 — Package Intelligence & Taps
+### v0.4 — Search and Discovery
+- Homebrew search, install, and uninstall with confirmation
+- Streaming progress output
 
-- Taps list with confirmation-gated add and remove actions
-- Homebrew Leaves and installed dependents
-- Read-only background outdated checks with Dock badge
-- Virtualized Packages and Casks lists
-- Keyboard row navigation and detail activation
+### v0.3 — Cleanup, Doctor, and Brewfile
+- Cleanup preview and run, `brew doctor`, Brewfile export and read
+- Local operation history
 
-## Future
+### v0.2 — Updates and Services
+- Outdated packages and upgrades
+- Service start, stop, and restart
 
-- Universal macOS build validation (Intel + Apple Silicon)
-- Accessibility polish
-- Contributor-friendly test fixtures
-- Automatic app updates
+### v0.1 — Foundation
+- App shell, sidebar, and status bar
+- Homebrew detection and installed package lists
 
-## Out of Scope
+## Out of scope
 
-- Linux support
-- Windows support
-- Package managers beyond Homebrew
+- Linux and Windows
+- Package managers other than Homebrew
+- Telemetry, accounts, cloud sync, and paid features

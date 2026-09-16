@@ -1,144 +1,115 @@
 # Architecture
 
-Brewwery is a macOS-first Electron app with a narrow main-process API over local Homebrew commands.
+Brewwery 1.0 is a native macOS application written in Swift 6 with SwiftUI, AppKit, and Foundation. There is no Electron, Node.js, Rust, web view, or JavaScript bridge. It replaces the 0.9.x Electron app and keeps the same screens, Homebrew commands, and validation rules.
 
 ## Overview
 
 ```text
-┌──────────────────────────────────────────────┐
-│              Renderer (React)                 │
-│      Zustand state, Tailwind UI, pages       │
-│           (sandboxed, no Node)               │
-├──────────────────────────────────────────────┤
-│            Preload Bridge                    │
-│         window.brewwery typed API            │
-├──────────────────────────────────────────────┤
-│          Electron Main Process               │
-│       IPC handlers, window, tray            │
-├──────────────────────────────────────────────┤
-│     Rust Core (napi-rs)  │  Streaming Runner │
-│  Homebrew detection,     │  install/upgrade  │
-│  parsing, validation     │  with shell:false │
-└──────────────────────────────────────────────┘
-               │
-        Local Homebrew CLI
+┌───────────────────────────────────────────────┐
+│  Brewwery (app target)                        │
+│  SwiftUI views · @Observable feature models   │
+│  AppKit: menu bar item, Dock badge, windows   │
+│  Sparkle: application updates                 │
+├───────────────────────────────────────────────┤
+│  BrewweryCore (library, no UI)                │
+│  HomebrewClient        actor                  │
+│  HomebrewCommand       typed, validated argv  │
+│  HomebrewRunner        actor, streaming       │
+│  OperationCoordinator  one mutation at a time │
+│  Parsers · Models · Persistence · Errors      │
+└───────────────────────────────────────────────┘
+                     │  posix_spawn, no shell
+               Homebrew (brew)
 ```
 
-## Project Structure
+## Project structure
 
 ```text
-.
-├── desktop/                 # Electron desktop app
-│   ├── src/main/           # Electron lifecycle, windows, IPC handlers
-│   ├── src/renderer/       # React UI, pages, components, state
-│   └── src/preload/        # Typed preload bridge
-├── crates/brewwery-core/    # Rust napi-rs native core
-├── packages/shared-types/   # Shared TypeScript IPC contracts
-├── docs/                    # Project documentation
-├── scripts/                 # Helper scripts
-└── package.json             # pnpm workspace root
+Sources/
+├── BrewweryCore/          # no UI — testable on its own
+│   ├── Homebrew/          # detection, typed commands, validation, runner, coordinator
+│   ├── Models/            # Formula, Cask, OutdatedPackage, BrewService, …
+│   ├── Parsers/           # Homebrew JSON and text output, fixture-tested
+│   ├── Persistence/       # settings, history, favorites
+│   └── Errors/  Logging/  Utilities/
+└── Brewwery/              # the app
+    ├── App/               # entry point, delegate, environment, menus, operations
+    ├── DesignSystem/      # palette, metrics, components, tables, state panels
+    ├── Features/          # Shell (sidebar, status bar, search) and one folder per page
+    ├── Models/            # @Observable feature models
+    └── Catalogs/          # bundled Discover, command, and Brewfile data
+Tests/                     # core, app, live, and shared test-support targets
+Packaging/                 # Info.plist, entitlements, logo sources
+Scripts/                   # app bundle, release, and screenshot scripts
 ```
 
+The project is a Swift Package; open `Package.swift` in Xcode or use `swift build`.
 
-## Layer Details
+## Layers
 
-### Renderer
+### Views and feature models
 
-- **Framework**: React with TypeScript
-- **State**: Zustand stores for UI and application state
-- **Styling**: Tailwind CSS with shadcn/ui-style components
-- **Build**: Vite via electron-vite
-- **Security**: Runs with context isolation, sandbox enabled, no Node integration
-- **API access**: Only through the typed `window.brewwery` preload API
+Each page is a SwiftUI view backed by an `@Observable`, `@MainActor` model — `PackageLibrary`, `UpdatesModel`, `ServicesModel`, and so on — owned by a single `AppEnvironment`. Models load data through `HomebrewClient` and publish loading, error, and empty states that the views render.
 
-### Preload Bridge
+### HomebrewClient
 
-The preload script exposes a narrow, typed API on `window.brewwery`. The renderer never has direct access to Node.js, IPC, or shell commands.
+An actor that exposes one async method per Homebrew operation (`search(_:)`, `outdated()`, `services()`, `doctor()`, …). It builds a `HomebrewCommand`, runs it, and turns the output into models with the parsers. Homebrew output that changed between versions is handled here — for example, falling back to `brew list --versions --json` when `--json=v2` is rejected.
 
-### Electron Main
+### HomebrewCommand
 
-Handles:
-- Application lifecycle and windows
-- Tray menu and keyboard shortcuts
-- IPC handler registration
-- Forwarding typed requests to Rust or streaming runner
-- Settings persistence in `userData`
+A closed enum with one case per supported command. Each case validates its dynamic values with `HomebrewIdentifier` and returns a fixed argument list. Nothing else in the app can produce arguments for `brew`. See [Security](/security) for the complete list and the validation rules.
 
-### Rust Core (napi-rs)
+### HomebrewDetector
 
-The native Rust addon handles:
-- Homebrew detection (`/opt/homebrew`, `/usr/local`, custom path)
-- Command execution with validated arguments
-- JSON parsing and normalization into Brewwery models
-- Package name validation
-- Search query validation
-- Custom Homebrew path validation
+Finds `brew` in this order: a saved custom path, `/opt/homebrew/bin/brew`, `/usr/local/bin/brew`, then `brew` on `PATH`. A custom path is only used after it passes validation.
 
-### Streaming Runner
+### HomebrewRunner and ChildProcess
 
-For operations that need live progress output (install, uninstall, upgrade):
-- Uses fixed argv arrays with `shell: false`
-- Streams stdout/stderr chunks to renderer as progress events
-- Uses the same validated Homebrew path as the Rust runner
+Runs `brew` with `posix_spawn` in its own process group, with the environment Homebrew needs plus `HOMEBREW_NO_AUTO_UPDATE=1` and `HOMEBREW_NO_ANALYTICS=1`. Short commands capture their output; long operations stream standard output and standard error as an `AsyncStream`. Cancelling sends `SIGTERM` to the whole process group and `SIGKILL` five seconds later if needed, so child processes such as `curl` and `git` stop too.
 
-## IPC Protocol
+### OperationCoordinator
 
-All IPC calls return a typed response:
+Owns installs, uninstalls, upgrades, service actions, and cleanup. It allows one mutating operation at a time, enforces the per-operation timeout, collects streamed output for the progress panel, records the result in History, and dismisses the panel shortly after success.
 
-```typescript
-type IpcResponse<T> = {
-  ok: boolean;
-  data?: T;
-  error?: {
-    code: string;
-    message: string;
-    raw?: string;
-  };
-};
-```
+### Persistence
 
-### Error Codes
+| Store | Backing |
+| --- | --- |
+| `SettingsStore` | `UserDefaults` (`com.brewwery.app`) |
+| `HistoryStore` | `~/Library/Application Support/Brewwery/history.json`, newest 100 entries |
+| `FavoritesStore` | `~/Library/Application Support/Brewwery/favorites.json` |
+
+### AppKit integration
+
+`AppDelegate` installs the menu bar item, refreshes the Dock badge from `brew outdated` in the background, and brings the main window forward from the menu. Application updates go through `AppUpdateController`, which only starts Sparkle inside the signed app bundle that carries a feed URL and public key.
+
+## Errors
+
+Every failure is a `BrewweryError` with a stable code, a user-facing message, and the raw output when there is one. Common codes:
 
 | Code | Meaning |
 | --- | --- |
-| `HOMEBREW_NOT_FOUND` | Homebrew is not installed or not at expected paths |
-| `BREW_COMMAND_FAILED` | A Homebrew command returned an error |
-| `BREW_JSON_PARSE_FAILED` | Homebrew JSON output could not be parsed |
-| `PERMISSION_DENIED` | Operation not allowed |
-| `UNSUPPORTED_PLATFORM` | Not running on macOS |
-| `UNKNOWN_ERROR` | Unexpected error |
+| `HOMEBREW_NOT_FOUND` | No working Homebrew executable was found |
+| `BREW_COMMAND_FAILED` | Homebrew exited with an error |
+| `BREW_JSON_PARSE_FAILED` | Homebrew's JSON output could not be read |
+| `INVALID_PACKAGE_NAME`, `INVALID_CASK_TOKEN`, `INVALID_TAP_NAME`, `INVALID_SERVICE_NAME`, `INVALID_FILE_PATH` | Input failed validation and was never sent to Homebrew |
+| `PACKAGE_INSTALL_FAILED`, `PACKAGE_UNINSTALL_FAILED`, `SERVICE_COMMAND_FAILED`, `CLEANUP_RUN_FAILED`, … | A specific operation failed |
+| `OPERATION_IN_PROGRESS` | Another operation that changes Homebrew is still running |
+| `OPERATION_CANCELLED` | You cancelled the operation |
+| `OPERATION_TIMEOUT` | The operation exceeded its safety timeout |
+| `BLOCKED_EXTERNAL_URL` | A link was outside the allowlist |
 
+## Tech stack
 
-### IPC Channels
-
-Brewwery uses typed channels for each operation category:
-
-- `system:detectHomebrew` — detect Homebrew installation
-- `system:getBrewInfo` — get Homebrew version, prefix, architecture
-- `packages:listFormulae` — list installed formulae
-- `packages:listCasks` — list installed casks
-- `packages:install` — install a formula or cask
-- `packages:uninstall` — uninstall a formula or cask
-- `updates:listOutdated` — list outdated packages
-- `updates:upgrade` — upgrade packages
-- `services:list` — list Homebrew services
-- `services:action` — start, stop, or restart a service
-- `cleanup:preview` — preview cleanup
-- `cleanup:run` — run cleanup
-- `doctor:run` — run brew doctor
-- `brewfile:export` — export Brewfile
-- `brewfile:read` — read a Brewfile
-
-## Tech Stack
-
-| Layer | Technology |
+| Area | Technology |
 | --- | --- |
-| Desktop framework | Electron |
-| UI framework | React |
-| Language | TypeScript |
-| Build tool | Vite + electron-vite |
-| Styling | Tailwind CSS |
-| Components | shadcn/ui-style local components |
-| State | Zustand |
-| Native core | Rust compiled with napi-rs |
-| Package manager | pnpm workspaces |
+| Language | Swift 6 with strict concurrency |
+| UI | SwiftUI, with AppKit for the menu bar, Dock, and windows |
+| State | Observation (`@Observable`) |
+| Concurrency | Swift actors and `AsyncStream` |
+| Processes | `posix_spawn` with process groups |
+| Updates | Sparkle 2 |
+| Logging | `os.Logger`, subsystem `com.brewwery.app` |
+| Tests | XCTest |
+| Build | Swift Package Manager; universal `arm64` + `x86_64` |
+| Minimum OS | macOS 14 Sonoma |

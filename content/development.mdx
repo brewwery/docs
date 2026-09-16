@@ -2,107 +2,96 @@
 
 ## Requirements
 
-- **macOS** (Apple Silicon recommended)
-- **Node.js 24**
-- **pnpm 10**
-- **Rust toolchain** for `crates/brewwery-core`
-- **Homebrew** for live package data (app runs without it in demo mode)
+- **macOS 14** or later
+- **Xcode 16** or later, or a Swift 6 toolchain
+- **Homebrew**, if you want the app to manage real packages — tests never need it
 
-## Quick Start
+## Quick start
 
 ```bash
-# Install dependencies
-pnpm install
-
-# Start development mode
-pnpm dev
-
-# Build for production
-pnpm build
+git clone https://github.com/brewwery/brewwery.git
+cd brewwery
+swift build          # compile
+swift run Brewwery   # run the app
+swift test           # run the test suites
 ```
 
-## Build Commands
+To work in Xcode, open `Package.swift`.
+
+## Commands
 
 | Command | Description |
 | --- | --- |
-| `pnpm dev` | Start the Electron app in dev mode |
-| `pnpm build` | Build shared-types, Rust core, and desktop |
-| `pnpm build:core` | Build only the Rust native core |
-| `pnpm typecheck` | Run TypeScript checks across all packages |
-| `pnpm lint` | Run linting across all packages |
+| `swift build` | Build the core library and the app |
+| `swift run Brewwery` | Run the app without packaging |
+| `swift test` | Core, app, and rendering tests; nothing touches your Homebrew |
+| `Scripts/make-app.sh` | Build a universal `dist/Brewwery.app`, ad-hoc signed for local use |
+| `Scripts/screenshots.sh` | Capture the website and docs screenshots in both themes |
+| `Scripts/release.sh --sign "Developer ID Application: …"` | Build, sign, notarize, and package a release |
 
-## Packaging Commands
+## Tests
 
-| Command | Description |
-| --- | --- |
-| `pnpm package:mac` | Build unsigned arm64 DMG + ZIP |
-| `pnpm package:mac:dir` | Build `.app` without DMG |
-| `pnpm package:mac:zip` | Build ZIP without DMG |
-| `pnpm package:mac:x64` | Build for Intel (requires x86_64 target) |
-| `pnpm package:mac:universal` | Build universal binary |
-| `pnpm package:clean` | Clean packaging artifacts |
+| Suite | Covers | Real Homebrew |
+| --- | --- | --- |
+| `BrewweryCoreTests` | Parsers against recorded Homebrew output, validation, detection, streaming, process-group cancellation | No — a scripted `brew` stand-in |
+| `BrewweryAppTests` | Operations and history, search debounce, table navigation and layout, every page rendered in both themes, accessibility checks | No |
+| `BrewweryLiveTests` | Reads, install and uninstall, cancelling a real download, services, taps, custom path, offline failures | **Yes**, opt-in |
 
-
-## Verification Commands
-
-| Command | Description |
-| --- | --- |
-| `pnpm release:verify` | Full verification: typecheck, lint, Rust tests, build, package |
-| `pnpm beta:clean-install` | Clean old app data for fresh testing |
-
-## Building the Rust Core
+The live suite changes your Homebrew installation — it installs and removes small packages and a tap — so it only runs when you ask for it:
 
 ```bash
-pnpm --filter @brewwery/brewwery-core build
+BREWWERY_LIVE=1 swift test --filter BrewweryLiveTests
 ```
 
-The Rust crate at `crates/brewwery-core` compiles to a Node.js native addon via napi-rs. It handles Homebrew detection, command execution, JSON parsing, and validation.
+To review every page after a UI change, render snapshots to a folder:
 
-## Workspace Structure
-
-Brewwery uses pnpm workspaces:
-
-```yaml
-packages:
-  - "desktop"          # Electron desktop app
-  - "packages/*"       # shared-types
-  - "crates/*"         # Rust napi-rs core
+```bash
+BREWWERY_SNAPSHOT_DIR=/tmp/brewwery-snapshots swift test --filter RenderingTests
 ```
 
-### Package Names
+## Screenshots
 
-| Package | Name |
-| --- | --- |
-| Desktop app | `@brewwery/desktop` |
-| Shared types | `@brewwery/shared-types` |
-| Rust core | `@brewwery/brewwery-core` |
+`Scripts/screenshots.sh` launches a debug build in demo mode against `Scripts/demo-brew.sh`, a scripted Homebrew with realistic sample data, and captures Dashboard, Search, Updates, Settings, Packages, and Services in dark and light themes. Demo mode keeps settings, history, and favorites in a temporary location, so screenshots never show or change your own data.
 
-## Packaging & Distribution
+```bash
+Scripts/screenshots.sh dist/screenshots
+SHOTS_ONLY="Packages Settings-Light" Scripts/screenshots.sh dist/screenshots
+```
 
-Brewwery uses `electron-builder` with:
+The terminal needs the Screen Recording permission. Keep the Mac idle while it runs so each window stays in front.
 
-- **App name**: Brewwery
-- **Bundle identifier**: `com.brewwery.app`
-- **macOS category**: `public.app-category.utilities`
-- **Primary target**: Apple Silicon `arm64`
-- **Artifacts**: unsigned `.dmg` and `.zip`
+## Releasing
 
-### Local DMG Issues
+Releases are universal, signed with a Developer ID, and notarized.
 
-Local DMG creation may fail with `hdiutil create ... -fs APFS` on some machines. Workarounds:
+One-time setup:
 
-1. Use `pnpm package:mac:dir` or `pnpm package:mac:zip` for local testing
-2. Let GitHub Actions build the DMG on a clean macOS runner
+1. Install a **Developer ID Application** certificate in your keychain.
+2. Store notarization credentials:
+   ```bash
+   xcrun notarytool store-credentials "Brewwery" --team-id <TEAM_ID>
+   ```
+3. Make sure the Sparkle EdDSA key is in the login keychain under the account `brewwery`, and that its public key matches `SUPublicEDKey` in `Packaging/Info.plist`.
 
-## Development Notes
+For each release:
 
-- The desktop app runs without Homebrew and shows Homebrew-not-found states
-- Mutating Homebrew actions must remain allowlisted with explicit confirmation
-- Add shared data shapes to `packages/shared-types` before wiring new IPC
-- Keep UI changes consistent with the dark macOS utility aesthetic
-- Do not add telemetry, authentication, cloud sync, or monetization
+1. Update `CFBundleShortVersionString` and `CFBundleVersion` in `Packaging/Info.plist`, and `CHANGELOG.md`.
+2. Run:
+   ```bash
+   Scripts/release.sh --sign "Developer ID Application: …" \
+     --site-public "../site/public"
+   ```
+   The script builds the universal app, signs it inside out with the hardened runtime, notarizes and staples it, wraps it in a signed DMG, notarizes and staples the DMG, and regenerates the Sparkle appcast. With `--site-public` it also copies the DMG to `download/brewwery.dmg` and the appcast to `appcast.xml` in the website.
+3. Tag the release and upload `dist/appcast/Brewwery-<version>.dmg` to its GitHub release — the appcast points there.
+4. Deploy the website so `https://www.brewwery.com/appcast.xml` and `/download/brewwery.dmg` serve the new files.
 
+Keep a backup of the Sparkle private key. Without it, installed copies cannot receive updates.
 
-## Signing & Notarization
+## Guidelines
 
-Current builds are **unsigned and not notarized**. Signed and notarized Apple Silicon builds are planned for v1.0. Until then, macOS Gatekeeper may warn when opening a downloaded build — right-click the app and choose **Open** to launch it.
+- Homebrew runs only through `HomebrewCommand`: no shell, no free-form arguments, every dynamic value validated in `HomebrewIdentifier`.
+- Anything that changes Homebrew needs an explicit confirmation.
+- Tests must never reach the real Homebrew unless they are in `BrewweryLiveTests`.
+- Icon-only buttons use `IconButton`, so they always have an accessible name.
+- Record deliberate behavior changes in `docs/ARCHITECTURE-DECISIONS.md`.
+- Do not add telemetry, authentication, cloud sync, or monetization.

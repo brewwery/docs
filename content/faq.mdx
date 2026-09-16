@@ -2,91 +2,98 @@
 
 ## General
 
-### Is Brewwery open source?
-
-Yes. Brewwery is MIT-licensed and developed in public on [GitHub](https://github.com/brewwery/brewwery). Contributions are welcome.
-
 ### Is Brewwery free?
 
-Yes, completely free. No paid tiers, no pro features, no subscriptions, no donations logic.
+Yes. Brewwery is free and open source under the MIT license, with no paid tiers, subscriptions, or accounts.
+
+### Is Brewwery part of Homebrew?
+
+No. Brewwery is an independent app that uses Homebrew. It is not affiliated with or endorsed by the Homebrew project.
 
 ### Who makes Brewwery?
 
-Brewwery is made by [Made Büro](https://github.com/madeburo).
+Brewwery is made by [Made Büro](https://github.com/madeburo) and developed in public on [GitHub](https://github.com/brewwery/brewwery).
 
 ### How do I contact the team?
 
-Email [pint@brewwery.com](mailto:pint@brewwery.com).
+Email [pint@brewwery.com](mailto:pint@brewwery.com), or use [GitHub Issues](https://github.com/brewwery/brewwery/issues) for bugs.
 
-## Security & Privacy
+## Install and updates
 
-### Does it run arbitrary shell commands?
+### Which Macs are supported?
 
-No. All operations go through typed IPC with an explicit allowlist of Homebrew commands. The renderer process never has access to a shell.
-
-### Does it collect telemetry?
-
-No. Zero telemetry, no cloud sync, no auth, no paid tiers. Everything is fully local. The desktop app makes no network calls to external servers.
-
-### Does it use sudo?
-
-No. Brewwery never uses elevated privileges. All Homebrew commands run as your user.
-
-### Can it damage my Homebrew installation?
-
-Brewwery only runs standard Homebrew commands and always requires explicit confirmation before mutating anything.
-
-
-## Platform & Compatibility
-
-### What macOS versions are supported?
-
-Brewwery targets recent macOS versions. Apple Silicon (M1/M2/M3/M4) is the primary platform.
-
-### Does it work on Intel Macs?
-
-Apple Silicon is the primary platform today. Intel and Universal builds are planned and coming soon (targeted for v1.1).
-
-### Is there a Linux or Windows version?
-
-No. Brewwery is intentionally macOS-only since Homebrew is primarily a macOS package manager.
+Any Mac with Apple Silicon or an Intel processor running macOS 14 Sonoma or later. Brewwery is a universal app.
 
 ### Is the app signed and notarized?
 
-Not yet — v0.9.2 is still pre-v1.0. Unsigned builds may trigger macOS Gatekeeper warnings. Right-click the app and select Open to bypass. Signing is planned for v1.0.
+Yes. Brewwery is signed with an Apple Developer ID and notarized by Apple, so it opens without Gatekeeper warnings.
+
+### How does Brewwery update itself?
+
+Through Sparkle. Brewwery checks for new versions automatically, and you can check manually from **Settings → Application updates** or the **Brewwery** menu. Updates are signed and verified before they are installed.
+
+### I used Brewwery 0.9. Do I need to do anything?
+
+Download 1.0 and replace the old app in Applications. The 0.9 builds cannot update to 1.0 automatically. Your Homebrew installation is unaffected; settings, history, and favorites from 0.9 are not carried over.
+
+### Is there a Linux or Windows version?
+
+No. Brewwery is a native Mac app.
+
+## Security and privacy
+
+### Does Brewwery run arbitrary shell commands?
+
+No. Brewwery never starts a shell. It runs `brew` directly from a fixed set of typed commands, and every package, tap, or service name is validated first. See [Security](/security) for the full list.
+
+### Does it collect data?
+
+No. There is no telemetry, crash reporting, analytics, account, or cloud sync. Brewwery also sets `HOMEBREW_NO_ANALYTICS=1` for the commands it runs.
+
+### Does it need my password or sudo?
+
+No. All commands run as your user, just like typing them in Terminal.
+
+### Can it break my Homebrew installation?
+
+Brewwery only runs standard Homebrew commands, and asks before any of them changes something. The confirmation shows the exact command.
 
 ## Features
 
-### Can it install and uninstall packages?
+### Can I install and uninstall packages?
 
-Yes — with explicit confirmation dialogs and a local operation history for every change. You see live progress output during the operation.
+Yes, both formulae and casks, with a confirmation, live output, and a record in History.
 
-### Does it auto-update Homebrew?
+### Does Brewwery update Homebrew automatically?
 
-No. Brewwery never runs `brew update` automatically. You must explicitly trigger it from the Updates page with confirmation.
+No. `brew update` only runs when you click **Check for updates** and confirm. Background checks for the Dock badge only read `brew outdated`.
 
-### Can I use a custom Homebrew path?
+### Can I manage taps?
 
-Yes. In Settings, you can validate and save a custom Homebrew executable path. Brewwery validates that it's an absolute path to an executable that can run `brew --version`.
+Yes. The Taps page lists your taps and can add or remove them after confirmation.
 
-### Does it support Homebrew taps?
+### Can I install from a Brewfile?
 
-Brewwery lists packages from all taps that Homebrew knows about, but it does not manage tap add/remove operations directly.
+Brewwery can export your setup to a Brewfile and read one, but installing from a Brewfile is done in Terminal with `brew bundle install`.
+
+### Can I use Brewwery and Terminal together?
+
+Yes. They share the same Homebrew installation. Press `⌘R` in Brewwery after making changes in Terminal.
+
+### My Homebrew is in a custom location. Will it work?
+
+Yes. Set the path in **Settings → Custom Homebrew path**. Brewwery validates it before saving.
 
 ## Technical
 
-### What's the tech stack?
+### What is Brewwery built with?
 
-Electron + React + TypeScript + Vite + Tailwind CSS + Zustand + Rust (napi-rs) + pnpm workspaces.
+Swift 6, SwiftUI, and AppKit, with Sparkle for app updates. There is no Electron, web view, or bundled runtime. See [Architecture](/architecture).
 
-### Why Electron?
+### Why was Brewwery rewritten?
 
-Electron provides a mature desktop framework. The Rust native core handles performance-critical Homebrew operations, keeping the app fast.
+Versions up to 0.9.7 used Electron, React, and a Rust core. The native rewrite makes Brewwery much smaller and lighter and more at home on macOS, and it made signing, notarization, universal builds, and automatic updates straightforward — while keeping every feature and the same security rules.
 
-### Why Rust?
+### Which Homebrew versions are supported?
 
-Rust handles command execution, JSON parsing, input validation, and path verification. It provides memory safety, speed, and eliminates shell spawning for critical operations.
-
-### How is Homebrew 5 compatibility handled?
-
-Homebrew 5 may reject `--json=v2` for `brew list`. Brewwery detects this and falls back to `brew list --formula --versions --json` or `brew list --cask --versions --json`.
+Current Homebrew releases. When a Homebrew version rejects `brew list --json=v2`, Brewwery falls back to `brew list --versions --json`.

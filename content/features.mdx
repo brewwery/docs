@@ -1,18 +1,17 @@
 # Features
 
-Brewwery provides a complete visual interface for managing Homebrew on macOS.
+Brewwery covers everything you do with Homebrew day to day, organized into fifteen pages in the sidebar.
 
 import { ThemeImage } from "../components/ThemeImage";
 
 ## Dashboard
 
-The main Dashboard shows your Homebrew status at a glance:
+Your Homebrew setup at a glance:
 
-- Total installed formulae and casks
-- Number of outdated packages
-- Running services count
-- Last refresh timestamp
-- Quick access to all sections
+- Homebrew status, version, prefix, executable, and architecture
+- Counts of installed formulae, casks, available updates, and services
+- A short list of pending updates and service states
+- **Refresh data** and **Check for updates** actions
 
 <ThemeImage
   light="/screenshots/Dashboard-Light.png"
@@ -20,139 +19,131 @@ The main Dashboard shows your Homebrew status at a glance:
   alt="Brewwery Dashboard"
 />
 
-## Package Management
+## Library
 
-### Installed Formulae & Casks
+### Packages
 
-See everything Homebrew manages in a filterable, sortable list:
+Every installed formula in one table:
 
-- View all installed formulae with name, version, and status
-- View all installed casks with name, version, and description
-- Filter formulae by category: all, Homebrew Leaves, installed on request, or dependencies
-- Search through installed packages locally
-- Sort by name, version, or status
-- Detail drawer with dependencies and installed dependents
-- Virtualized rows with Arrow, Home, End, Enter, and Space keyboard controls
+- Name, version, kind, description, and status for each formula
+- Filters for **All formulae**, **Leaves** (formulae nothing else depends on), **On request**, and **Dependencies**
+- Sort by name, version, or status, and filter by typing in the page header
+- A details panel with homepage, versions, dependencies, installed dependents, and caveats
+- Actions to uninstall, copy the package name, or copy the install, uninstall, and upgrade commands
 
-### Taps
+<ThemeImage
+  light="/screenshots/Packages-Light.png"
+  dark="/screenshots/Packages.png"
+  alt="Brewwery Packages table"
+/>
 
-Manage additional Homebrew repositories safely:
+### Casks
 
-- List installed official and third-party taps
-- Add taps using a validated `owner/repository` name
-- Remove taps after explicit confirmation
-- Keep tap and untap results in local History
+The same table for installed casks — Mac apps, fonts, and other binaries — with sorting, filtering, details, and uninstall.
 
-### Package Search & Discovery
+### Search
 
-Find and explore new Homebrew packages:
+Search all of Homebrew for formulae and casks:
 
-- Debounced search across formulae and casks
-- Rich detail cards with homepage, latest version, dependencies, caveats, and install command
-- Shows installed/available state in results
-- Strict validation prevents non-Homebrew input from reaching the shell
+- Results appear as you type (searches start after a short pause)
+- Each result shows whether it is already installed
+- Open details to see versions, dependencies, and caveats, then install or uninstall after confirmation
+- Press `⌘K` from any page to jump to search
 
 <ThemeImage
   light="/screenshots/Search-Light.png"
   dark="/screenshots/Search.png"
-  alt="Brewwery package search and discovery"
+  alt="Brewwery package search"
 />
+
+Homebrew search accepts ASCII letters, digits, and `@`, `-`, `_`, `.`, and `+`. Brewwery explains when a query contains anything else instead of sending it to Homebrew.
+
+### Discover
+
+Curated collections of useful software — Essential CLI, Development, Languages, Backend, Frontend, Databases, AI Tools, Productivity, Browsers, Media, Security, and Utilities. Each card shows whether the package is installed, and lets you open details, install, or add a favorite.
 
 ### Favorites
 
-Save your most-used packages for quick access:
+Star any formula or cask from Search, Discover, Packages, or Casks. Favorites are listed on their own page with their install status and are saved on your Mac.
 
-- Mark any formula or cask as a favorite from the package card or detail drawer
-- Favorites appear in a dedicated Favorites view in the sidebar
-- Favorites persist across sessions via local settings
-- Favorite badge shown inline on package cards and search results
+### Taps
 
-### Install & Uninstall
+Manage the extra repositories Homebrew installs from:
 
-Install or remove packages with full visibility:
+- List installed taps
+- Add a tap in `owner/repository` form, for example `hashicorp/tap`
+- Remove a tap after confirmation
 
-- Install formulae or casks after explicit confirmation
-- Uninstall formulae or casks after explicit confirmation
-- Live streaming progress output during operations
-- Operation logged to local history with timestamps and output
+### Updates
 
+Keep everything current:
 
-## Updates
-
-Manage outdated packages:
-
-- See all outdated formulae and casks from `brew outdated`
-- Show the read-only outdated count in the macOS Dock badge during background checks
-- Upgrade individual packages or all at once
-- Explicit `Check for updates` action runs `brew update` with confirmation
-- Streaming progress during upgrades
-- Results logged to operation history
-
-Background checks never run `brew update` or mutate installed packages.
+- Every outdated formula and cask with installed and latest versions
+- Upgrade a single package or **Upgrade all**
+- **Check for updates** runs `brew update` to refresh Homebrew's package information, after confirmation
+- A Dock badge shows the number of outdated packages; background checks only read `brew outdated` and never change anything
 
 <ThemeImage
   light="/screenshots/Updates-Light.png"
   dark="/screenshots/Updates.png"
-  alt="Brewwery Updates panel"
+  alt="Brewwery Updates page"
 />
 
-## Services
+## System
 
-Control Homebrew services:
+### Services
 
-- See all Homebrew services with their current status
-- Start, stop, or restart services with confirmation
-- Status indicators for running, stopped, and errored services
-- Actions logged to history
+Control background services installed with Homebrew, such as databases and caches:
 
-## Cleanup
+- Every service with its status, user, and file
+- Totals for running, stopped, and failed services
+- Start, stop, or restart after confirmation, with live output
 
-Reclaim disk space safely:
+<ThemeImage
+  light="/screenshots/Services-Light.png"
+  dark="/screenshots/Services.png"
+  alt="Brewwery Services page"
+/>
 
-- Preview cleanup output before running (`brew cleanup -n`)
-- See removable items and estimated size savings
-- Run cleanup only after explicit confirmation
-- Results logged to history
+### Cleanup
 
-## Diagnostics
+Reclaim disk space safely. Brewwery always runs a dry run (`brew cleanup -n`) first and shows what would be removed and how much space it frees. The real cleanup is only available after a preview, and asks for confirmation.
 
-Run health checks on your Homebrew installation:
+### Doctor
 
-- Run `brew doctor` visually
-- Parsed diagnostics with clear issue descriptions
-- Copy diagnostics report for sharing
-- Health state indicator
+Run `brew doctor` and read the result as a list of issues instead of a wall of text. Copy the diagnostics to share them in a bug report.
 
-## Brewfile
+### Brewfile
 
-Export and inspect your Homebrew setup:
+- **Export** your current setup to a Brewfile with `brew bundle dump`
+- **Read** any Brewfile — type a path or choose a file — to see its taps, formulae, casks, and Mac App Store apps grouped by type
 
-- Export a reproducible Brewfile (`brew bundle dump`)
-- Read and inspect Brewfile contents
-- Entries grouped by type (formulae, casks, taps, mas apps)
-- Copy Brewfile contents
+Brewwery never runs `brew bundle install` for you; reading a Brewfile is read-only.
 
-## Operation History
+### Commands
 
-Track everything Brewwery does:
+A reference of common Homebrew commands with a short explanation and a copy button for each, plus links to this documentation.
 
-- Local history of all operations with timestamps
-- Success and failure states with detailed output
-- Expandable stdout, stderr, and error details
-- Search and filter history entries
-- Export history as JSON
-- Filter to show only failed operations
-- Clear history when needed
+## App
 
-## Settings
+### History
 
-Configure Brewwery to your preference:
+A local log of every operation Brewwery runs:
 
-- **Theme** — switch between System, Dark, and warm Light themes
-- **Custom Homebrew path** — validate and save a non-standard brew location
-- **History management** — export or clear operation history
-- **Copy diagnostics** — compact report for troubleshooting
-- **About** — app version, channel, and links
+- Command, target, status, time, and full output for each operation
+- Filters for failed and cancelled operations, and for installs, uninstalls, upgrades, metadata updates, taps, services, cleanup, doctor, and Brewfile exports
+- Search across commands and output
+- Export the log as JSON, or clear it
+
+History keeps the 100 most recent operations and never leaves your Mac.
+
+### Settings
+
+- **Homebrew** — detection status, version, prefix, architecture, the paths Brewwery checked, and a validated custom path
+- **Appearance** — System, Dark, or Light
+- **Application updates** — automatic checks, pre-release versions, and **Check for updates now**
+- **History** — export or clear
+- **About** — version, channel, and license, **Copy diagnostics** for bug reports, and links to the website and release notes
 
 <ThemeImage
   light="/screenshots/Settings-Light.png"
@@ -160,22 +151,33 @@ Configure Brewwery to your preference:
   alt="Brewwery Settings"
 />
 
-## Keyboard Shortcuts
+## Operations
 
-Quick access to common actions:
+Installs, uninstalls, upgrades, service actions, and cleanup run as operations:
 
-- **Search** — jump to package search
-- **Refresh** — refresh the current page data
-- **Settings** — open Settings
-- **Close window** — close the Brewwery window
-- **Center window** — `Control+C` centers on screen
-- **Quit** — quit Brewwery
+- Output streams live into a progress panel at the bottom of the window
+- Only one operation that changes Homebrew runs at a time
+- **Cancel** stops Homebrew and every process it started, such as downloads
+- Each kind of operation has a safety timeout: 45 minutes for install and upgrade, 15 minutes for uninstall, 30 minutes for cleanup, and 5 minutes for services
+- The panel closes by itself when an operation succeeds; failures stay open with the full output
 
-## Tray Menu
+## Keyboard
 
-Brewwery sits in your menu bar with quick actions:
+| Shortcut | Action |
+| --- | --- |
+| `⌘K` | Search packages |
+| `⌘R` | Refresh the current page |
+| `⌘,` | Settings |
+| `↑` `↓` | Move through table rows |
+| `Home` `End` | First or last row |
+| `Return` or `Space` | Open the selected row's details |
+
+## Menu bar
+
+Brewwery adds an item to the menu bar with quick access to:
 
 - Open Brewwery
 - Check for updates
 - Run doctor
+- Settings
 - Quit

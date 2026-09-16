@@ -1,41 +1,48 @@
 # Contributing
 
-Contributions are welcome! Brewwery is MIT-licensed and developed in public.
+Contributions are welcome. Brewwery is MIT-licensed and developed in public.
 
-## Getting Started
+## Getting started
 
-1. Fork the repository on [GitHub](https://github.com/brewwery/brewwery)
-2. Clone your fork
-3. Install dependencies: `pnpm install`
-4. Start development: `pnpm dev`
+1. Fork [brewwery/brewwery](https://github.com/brewwery/brewwery) on GitHub.
+2. Clone your fork and build it:
+   ```bash
+   swift build
+   swift run Brewwery
+   swift test
+   ```
+3. Read the [Development](/development) guide and [Architecture](/architecture) overview.
 
 ## Guidelines
 
-- **Keep changes scoped and readable**
-- **macOS-first** — Brewwery is intentionally macOS-only
-- **Prefer read-only operations** unless a feature explicitly needs mutation
-- **Do not add**: telemetry, authentication, cloud sync, or monetization
-- **Keep UI consistent** with the dark macOS utility aesthetic
-- **Typed IPC** — add shared data shapes to `packages/shared-types` before wiring new IPC
-- **Explicit confirmation** — all mutating operations must require user confirmation
+- **Keep changes focused** — one change per pull request, easy to review
+- **macOS first** — use native SwiftUI and AppKit patterns and follow the existing design system
+- **Typed commands only** — Homebrew runs through `HomebrewCommand`; never add a shell or free-form arguments, and validate every dynamic value in `HomebrewIdentifier`
+- **Confirm changes** — anything that modifies Homebrew needs an explicit confirmation that shows the command
+- **Test without Homebrew** — use the scripted `brew` stand-in; only `BrewweryLiveTests` may touch a real installation
+- **Accessible by default** — icon-only buttons use `IconButton` so they have a name
+- **Stay local** — no telemetry, authentication, cloud sync, or monetization
 
-## Development Setup
+## Pull requests
 
-See the [Development](/development) guide for full setup instructions.
+- Describe what changed and why, with screenshots for UI changes
+- Make sure `swift build` and `swift test` pass
+- Try the change against your own Homebrew with `swift run Brewwery`
+- Update `CHANGELOG.md` and these docs when behavior changes
 
-## Pull Requests
+## Documentation
 
-- Keep PRs focused on a single change
-- Include a clear description of what changed and why
-- Ensure `pnpm typecheck` and `pnpm lint` pass
-- Test your changes with a local Homebrew installation
+This site lives in [brewwery/docs](https://github.com/brewwery/docs). Fixes and clarifications are just as welcome as code.
 
-## Reporting Issues
+## Reporting issues
 
-Use [GitHub Issues](https://github.com/brewwery/brewwery/issues) with the provided templates:
-- **Bug reports** — include steps to reproduce, expected behavior, and screenshots
-- **Feature requests** — describe the use case and proposed solution
+Use [GitHub Issues](https://github.com/brewwery/brewwery/issues):
 
-## Code of Conduct
+- **Bugs** — steps to reproduce, what you expected, and the report from **Settings → About → Copy diagnostics**
+- **Feature requests** — the problem you want to solve and how you imagine it working
 
-Please keep interactions respectful and constructive.
+Report security vulnerabilities privately through the [security policy](https://github.com/brewwery/brewwery/security/policy).
+
+## Code of conduct
+
+Be respectful and constructive.

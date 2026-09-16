@@ -1,0 +1,94 @@
+# Troubleshooting
+
+Fixes for the most common Brewwery and Homebrew problems. If yours is not here, [open an issue](https://github.com/brewwery/brewwery/issues) and include the report from **Settings → About → Copy diagnostics**.
+
+## Brewwery says "Homebrew not found"
+
+Brewwery looks for `/opt/homebrew/bin/brew`, `/usr/local/bin/brew`, and `brew` on your `PATH`.
+
+1. Check that Homebrew is installed. In Terminal:
+   ```bash
+   which brew && brew --version
+   ```
+2. If nothing is printed, install Homebrew — see [What is Homebrew?](/what-is-homebrew#install-homebrew).
+3. If Homebrew is somewhere else, copy the path printed by `which brew` into **Settings → Custom Homebrew path**, click **Validate**, then **Save**.
+4. Click **Refresh data** on the Dashboard.
+
+Apps started from the Finder do not read your shell profile, so a `brew` that only exists because of `PATH` changes in `~/.zshrc` may not be found. Setting a custom path fixes that.
+
+## The custom path does not validate
+
+The path must be absolute, point to the `brew` executable itself (not its folder), and `brew --version` must succeed. Run the path in Terminal to see the error:
+
+```bash
+/path/to/brew --version
+```
+
+If Homebrew itself is broken, run `brew doctor` in Terminal and follow its advice.
+
+## Lists are empty or out of date
+
+- Press `⌘R` to refresh the current page — Brewwery does not watch for changes made in Terminal.
+- Package information comes from Homebrew's local data. On **Updates**, click **Check for updates** to run `brew update`, then refresh.
+
+## Search shows "Use Latin characters"
+
+Homebrew package names only use ASCII letters, digits, and `@`, `-`, `_`, `.`, `+`. Search for the package's English name, for example `postgresql` rather than a localized name.
+
+## "Another Homebrew operation is already running"
+
+Brewwery runs one operation that changes Homebrew at a time, so Homebrew never works on two things at once. Wait for the current operation to finish, or cancel it from the progress panel.
+
+## An install or upgrade is stuck
+
+Large packages can take a long time to download or build. The progress panel shows Homebrew's live output — if it is still changing, the operation is still working.
+
+To stop it, click **Cancel**. Brewwery stops Homebrew and every process it started. Operations also stop by themselves after their safety timeout (45 minutes for install and upgrade).
+
+## An operation failed
+
+The progress panel stays open with the full output, and the same output is saved in **History**. The last lines usually explain the problem. Common causes:
+
+| Output mentions | Try |
+| --- | --- |
+| `Permission denied`, `not writable` | Fix ownership of the Homebrew prefix as `brew doctor` suggests |
+| `Could not resolve host`, `Failed to connect` | Check your internet connection, VPN, or proxy |
+| `Xcode` or `Command Line Tools` | Run `xcode-select --install`, or update the tools in System Settings |
+| `already installed` | Refresh the page — the package is already there |
+| `It seems there is already an App` | A cask's app exists in /Applications from another source; remove it or install in Terminal with `--force` |
+| `requires macOS` | The package does not support your macOS version |
+
+## Services will not start
+
+- Open the service's **File** path in Terminal to check its configuration.
+- Run `brew services info <name>` in Terminal for details.
+- Some services must be initialized first — for example, databases often print setup steps in their caveats. Open the package's details to read them.
+
+## The Dock badge does not update
+
+The badge is refreshed in the background from `brew outdated`, which only knows about updates Homebrew has fetched. Run **Check for updates** on the Updates page to refresh Homebrew's information.
+
+## Brewwery does not update itself
+
+- Check **Settings → Application updates** and click **Check for updates now**.
+- Updates require the downloaded release; a copy built from source does not update automatically.
+- Make sure Brewwery is in `/Applications` and not running from the disk image.
+
+## Starting over
+
+To reset Brewwery without touching Homebrew, quit it and remove its data:
+
+```bash
+defaults delete com.brewwery.app
+rm -rf "$HOME/Library/Application Support/Brewwery"
+```
+
+## Collecting logs
+
+Brewwery writes to the unified log. To watch it while you reproduce a problem:
+
+```bash
+log stream --level info --predicate 'subsystem == "com.brewwery.app"'
+```
+
+Logs stay on your Mac unless you choose to share them.

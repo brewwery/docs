@@ -2,6 +2,37 @@
 
 All notable changes to Brewwery.
 
+## v1.0.0 — Native macOS App
+
+Brewwery is now a native macOS application. It replaces the Electron, React, and Rust build of 0.9.7 with Swift 6, SwiftUI, and AppKit, and keeps the same features, Homebrew commands, and validation rules.
+
+### Added
+- Universal app for Apple Silicon and Intel Macs.
+- Developer ID signing and Apple notarization.
+- Automatic app updates with Sparkle, including an option for pre-release versions.
+- Brewfiles can be opened with a file picker as well as by typing a path.
+
+### Changed
+- Rebuilt natively: no Electron, Node.js, or Rust runtime is shipped, and the download is a fraction of the size.
+- The title bar is gone. Search and Settings sit in each page's header next to that page's actions; the search field is compact and widens while you type.
+- Packages, Casks, and History filter from the page header instead of a second search box.
+- Successful operations close their progress panel automatically; failures stay open with the full output.
+- The first-launch overlay is removed; the "Homebrew not found" panel and Settings cover the same ground.
+- The Dashboard no longer repeats the "Homebrew not found" error inside every card.
+- The logo is rendered from the original vector artwork.
+
+### Fixed
+- Cancelling an operation now stops Homebrew's own child processes, such as `git` and `curl`, as well as `brew` itself.
+- Validating a custom Homebrew path can no longer report a broken executable as valid.
+
+### Security
+- Homebrew runs through a closed set of typed commands with no shell.
+- Formula names containing a `..` path segment are rejected before Homebrew runs.
+- Hardened runtime with no entitlements.
+
+### Requirements
+- macOS 14 Sonoma or later.
+
 ## v0.9.7 — Package Intelligence & Taps
 
 ### Added

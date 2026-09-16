@@ -1,75 +1,63 @@
 # Getting Started
 
-## System Requirements
+## System requirements
 
-- **macOS** (Apple Silicon recommended, Intel support planned)
-- **Homebrew** installed at `/opt/homebrew` or `/usr/local`
-- No additional configuration needed
+- **macOS 14 Sonoma** or later
+- **Apple Silicon or Intel** — Brewwery is a universal app
+- **Homebrew** — at `/opt/homebrew` (Apple Silicon), `/usr/local` (Intel), or any custom location
+
+Brewwery opens without Homebrew and explains how to install it, but it needs Homebrew to do anything useful. New to Homebrew? Read [What is Homebrew?](/what-is-homebrew) first.
 
 ## Download
 
-Download the latest release from [GitHub Releases](https://github.com/brewwery/brewwery/releases).
+Download the latest version from the website:
 
-Current builds are available as:
-- `.dmg` — standard macOS disk image
-- `.zip` — compressed app bundle
+**[Download Brewwery for macOS](https://www.brewwery.com/download/brewwery.dmg)**
 
-## Installation
+Every release is also attached to [GitHub Releases](https://github.com/brewwery/brewwery/releases) as `Brewwery-<version>.dmg`.
 
-### From DMG
+## Install
 
-1. Download the `.dmg` file from the latest release.
-2. Open the disk image.
-3. Drag **Brewwery** to your Applications folder.
-4. Launch Brewwery from Applications.
+1. Open `brewwery.dmg`.
+2. Drag **Brewwery** onto the **Applications** folder.
+3. Eject the disk image.
+4. Open Brewwery from Applications or Spotlight.
 
-### From ZIP
+Brewwery is signed with an Apple Developer ID and notarized by Apple, so it opens like any other Mac app — no right-click workaround or Gatekeeper changes are needed.
 
-1. Download the `.zip` file from the latest release.
-2. Unzip the archive.
-3. Move `Brewwery.app` to your Applications folder.
-4. Launch Brewwery.
+## First launch
 
-## Unsigned Build Warning
+1. **Homebrew detection** — Brewwery looks for `brew` in this order: a custom path you saved in Settings, `/opt/homebrew/bin/brew`, `/usr/local/bin/brew`, and finally `brew` on your `PATH`.
+2. **Dashboard** — once Homebrew is found, the Dashboard shows its version, your installed formulae and casks, running services, and pending updates.
+3. **Homebrew not found** — if no working `brew` is found, Brewwery shows the paths it checked. Install Homebrew from [brew.sh](https://brew.sh), or set a custom path as described below, then click **Refresh data**.
 
-Current Release Candidate builds are **unsigned and not notarized**. macOS Gatekeeper may display a warning when opening the app for the first time.
+## Set a custom Homebrew path
 
-To open an unsigned app:
-1. Right-click (or Control-click) on `Brewwery.app`.
-2. Select **Open** from the context menu.
-3. Click **Open** in the confirmation dialog.
+If Homebrew lives somewhere unusual:
 
-This only needs to be done once. Signed and notarized builds are planned for v1.0.
+1. Open **Settings** (`⌘,`).
+2. Enter the full path to the `brew` executable under **Custom Homebrew path**.
+3. Click **Validate**. Brewwery checks that the path is absolute, points to an executable file, and that it answers `brew --version`.
+4. Click **Save**. Every Homebrew command, including long-running operations, now uses that path.
 
-> **Do not** disable Gatekeeper globally. The right-click method is the safe approach.
+Click **Reset** to go back to automatic detection.
 
+## Updates
 
-## First Launch
+Brewwery checks for new versions of itself automatically and installs them through [Sparkle](https://sparkle-project.org), the standard update framework for Mac apps. You can turn automatic checks off, opt into pre-release versions, or check right away in **Settings → Application updates**, or with **Brewwery → Check for Updates…** in the menu bar.
 
-When you first launch Brewwery:
-
-1. **Homebrew Detection** — Brewwery automatically detects your Homebrew installation at `/opt/homebrew/bin/brew` or `/usr/local/bin/brew`.
-2. **Onboarding** — If Homebrew is detected, you'll see your Dashboard. If not, you'll see instructions to install Homebrew.
-3. **Package Loading** — Installed formulae and casks are loaded and displayed on the Dashboard.
-
-## Custom Homebrew Path
-
-If your Homebrew is installed at a non-standard location:
-
-1. Open **Settings** from the sidebar.
-2. Enter your custom Homebrew executable path.
-3. Brewwery validates the path (checks it's absolute, executable, and can run `brew --version`).
-4. Save to apply.
+Application updates are separate from Homebrew: updating Brewwery never touches your packages, and upgrading packages never updates Brewwery.
 
 ## Uninstall
 
-To completely remove Brewwery and its data:
+Quit Brewwery, then remove the app and its local data:
 
 ```bash
 rm -rf "/Applications/Brewwery.app"
 rm -rf "$HOME/Library/Application Support/Brewwery"
-rm -f "$HOME/Library/Preferences/com.brewwery.app.plist"
+defaults delete com.brewwery.app
+rm -rf "$HOME/Library/Caches/com.brewwery.app"
 rm -rf "$HOME/Library/Saved Application State/com.brewwery.app.savedState"
 ```
 
-This removes the app and all local Brewwery preferences. It does **not** affect Homebrew or your installed packages.
+This removes Brewwery's settings, history, and favorites. It does **not** change Homebrew or anything installed with it.

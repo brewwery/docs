@@ -1,0 +1,85 @@
+# Brew Commands
+
+A practical reference for the Homebrew commands you will use most, and where to find each one in Brewwery. Run them in Terminal, or use the matching Brewwery page.
+
+For the complete list, see `brew help` or the [official manual](https://docs.brew.sh/Manpage).
+
+## Install and remove
+
+| Command | What it does | In Brewwery |
+| --- | --- | --- |
+| `brew install <formula>` | Install a formula | Search, Discover → Install |
+| `brew install --cask <cask>` | Install a Mac app or other cask | Search, Discover → Install |
+| `brew uninstall <formula>` | Remove a formula | Packages → details → Uninstall |
+| `brew uninstall --cask <cask>` | Remove a cask | Casks → details → Uninstall |
+| `brew reinstall <formula>` | Remove and install again | Terminal only |
+| `brew autoremove` | Remove dependencies nothing needs any more | Terminal only |
+
+## Find packages
+
+| Command | What it does | In Brewwery |
+| --- | --- | --- |
+| `brew search <text>` | Search formulae and casks | Search (`⌘K`) |
+| `brew info <formula>` | Show versions, dependencies, and caveats | Details panel |
+| `brew info --cask <cask>` | Show information about a cask | Details panel |
+| `brew home <formula>` | Open the project's homepage | Details panel → Open homepage |
+
+## What is installed
+
+| Command | What it does | In Brewwery |
+| --- | --- | --- |
+| `brew list --formula` | List installed formulae | Packages |
+| `brew list --cask` | List installed casks | Casks |
+| `brew leaves` | Formulae that nothing else depends on | Packages → Leaves |
+| `brew deps <formula>` | What a formula depends on | Details panel → Dependencies |
+| `brew uses --installed <formula>` | Installed formulae that depend on it | Details panel → Installed dependents |
+
+## Keep things up to date
+
+| Command | What it does | In Brewwery |
+| --- | --- | --- |
+| `brew update` | Fetch the latest Homebrew and package information | Updates → Check for updates |
+| `brew outdated` | List packages with newer versions | Updates |
+| `brew upgrade <formula>` | Upgrade one formula | Updates → Upgrade |
+| `brew upgrade --cask <cask>` | Upgrade one cask | Updates → Upgrade |
+| `brew upgrade` | Upgrade everything | Updates → Upgrade all |
+| `brew pin <formula>` | Hold a formula at its current version | Terminal only |
+
+`brew update` only refreshes information — it does not upgrade anything. Run `brew upgrade` afterwards to install new versions.
+
+## Taps
+
+| Command | What it does | In Brewwery |
+| --- | --- | --- |
+| `brew tap` | List taps | Taps |
+| `brew tap <owner/repository>` | Add a tap | Taps → Add tap |
+| `brew untap <owner/repository>` | Remove a tap | Taps → Remove |
+
+## Services
+
+| Command | What it does | In Brewwery |
+| --- | --- | --- |
+| `brew services list` | List services and their status | Services |
+| `brew services start <name>` | Start a service now and at login | Services → Start |
+| `brew services stop <name>` | Stop a service | Services → Stop |
+| `brew services restart <name>` | Restart a service | Services → Restart |
+
+## Maintenance
+
+| Command | What it does | In Brewwery |
+| --- | --- | --- |
+| `brew cleanup -n` | Show what cleanup would remove | Cleanup → Preview cleanup |
+| `brew cleanup` | Remove old versions and caches | Cleanup → Run cleanup |
+| `brew doctor` | Check your installation for problems | Doctor |
+| `brew config` | Show Homebrew's configuration | Settings, Copy diagnostics |
+| `brew --version` | Show the Homebrew version | Dashboard, Settings |
+
+## Brewfiles
+
+| Command | What it does | In Brewwery |
+| --- | --- | --- |
+| `brew bundle dump --file=<path>` | Write your setup to a Brewfile | Brewfile → Export Brewfile |
+| `brew bundle install --file=<path>` | Install everything in a Brewfile | Terminal only |
+| `brew bundle check --file=<path>` | Check whether a Brewfile is satisfied | Terminal only |
+
+Commands marked **Terminal only** are not run by Brewwery. See [Security](/security) for the exact list of commands Brewwery can run.

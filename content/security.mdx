@@ -1,142 +1,137 @@
 # Security
 
-Brewwery is a local-first macOS app. It is conservative by design because it sits between the user and a package manager.
+Brewwery sits between you and a package manager that can change your whole system, so it is conservative by design.
 
 ## Principles
 
-- **No telemetry** — zero data collection, no analytics in the app
-- **No authentication** — no accounts, no login
-- **No cloud sync** — everything stays on your machine
-- **No monetization** — no paid tiers, no donations logic
-- **No background mutations** — Homebrew state is never changed without your knowledge
-- **No arbitrary shell execution** — only allowlisted Homebrew commands
+- **No shell** — Homebrew is started directly, never through `sh`, `bash`, or `zsh`
+- **No free-form commands** — only a fixed set of Homebrew commands can run
+- **No surprises** — every change to Homebrew needs your confirmation
+- **No elevated privileges** — no `sudo`, no helper tools, no admin prompts
+- **No telemetry** — no analytics, crash reporting, accounts, or cloud sync
+- **No background changes** — background checks only read state
 
-## Electron Security
+## How a command runs
 
-The renderer process runs with maximum isolation:
+```text
+SwiftUI view
+  → feature model
+    → HomebrewClient
+      → HomebrewCommand   validates arguments, produces a fixed argument list
+        → HomebrewRunner
+          → child process  posix_spawn, own process group, no shell
+            → brew
+```
 
-| Setting | Value |
+`HomebrewCommand` is a closed Swift enum. Each case produces a fixed argument list, and none accepts arbitrary arguments, so the interface has no way to build a command line. Every value that comes from you — a package name, a search query, a tap, a service, a file path — is validated before the argument list exists, and it is always passed as a single argument, never interpreted by a shell.
+
+## Validation rules
+
+| Input | Rule |
 | --- | --- |
-| Context isolation | Enabled |
-| Sandbox | Enabled |
-| Node integration | Disabled |
-| Remote module | Disabled |
-| Preload API | Narrow typed `window.brewwery` only |
-| External links | Opened in OS browser, denied inside app |
+| Formula names | ASCII letters, digits, `@`, `-`, `_`, `.`, `+`, and `/` for tap-qualified names such as `mongodb/brew/mongodb-community`; no leading, trailing, or double `/`, and no `..` segments; up to 120 characters |
+| Cask tokens and service names | ASCII letters, digits, `@`, `-`, `_`, `.`, `+`; up to 120 characters |
+| Search queries | The same character set as cask tokens; up to 80 characters |
+| Taps | Exactly `owner/repository`, using ASCII letters, digits, `-`, `_`, and `.` |
+| Brewfiles to read | An absolute path to an existing file named `Brewfile` or ending in `.brewfile`, up to 1 MB |
+| Custom Homebrew path | Absolute, an executable file, and must answer `brew --version` |
 
-## Command Execution Model
+Spaces, shell metacharacters, quotes, redirection, and newlines never reach Homebrew.
 
-Homebrew commands flow through typed IPC and are executed through predefined, allowlisted operations:
+## Changes need confirmation
 
-1. Renderer calls `window.brewwery.someMethod(args)` via the preload bridge
-2. Preload forwards to Electron main via typed IPC
-3. Main process calls the Rust native addon or streaming runner
-4. Only predefined Homebrew commands can run
-5. There is no generic shell command IPC
-
-
-### Validation Rules
-
-- Package/cask names: only ASCII letters, digits, `@`, `-`, `_`, `.`, `+`
-- Spaces, shell metacharacters, redirection characters, and newlines are rejected
-- Validation happens before the Rust runner is invoked
-- Search queries: same ASCII allowlist, validated in both renderer and Rust
-- Custom Homebrew path: must be absolute, executable, and pass `brew --version`
-
-### Streaming Operations
-
-For install, uninstall, and upgrade:
-- Fixed argv arrays with `shell: false`
-- Renderer receives progress events only
-- Cannot provide arbitrary commands
-
-## Mutating Operations
-
-All operations that change system state require **explicit user confirmation**:
-
-| Operation | Confirmation Required |
+| Operation | Confirmation |
 | --- | --- |
-| Install formula/cask | Yes |
-| Uninstall formula/cask | Yes |
-| Upgrade package(s) | Yes |
-| Run `brew update` | Yes |
-| Start/stop/restart service | Yes |
-| Run cleanup | Yes (preview required first) |
-| Add/remove Homebrew tap | Yes |
+| Install a formula or cask | Yes |
+| Uninstall a formula or cask | Yes |
+| Upgrade one package or all packages | Yes |
+| `brew update` | Yes |
+| Start, stop, or restart a service | Yes |
+| Add or remove a tap | Yes |
+| Cleanup | Yes, and only after a preview |
 
-Cleanup is never run automatically — it requires viewing the preview output first, then explicit confirmation.
+Each confirmation shows the exact command that will run.
 
-## Environment Variables
+## Operation safety
 
-Brewwery sets these in all Homebrew command environments:
+- Only one operation that changes Homebrew runs at a time.
+- Cancelling an operation signals Homebrew's whole process group, so the downloads and `git` processes it started stop too. A process that ignores the request is force-stopped after five seconds.
+- Operations stop automatically after a fixed timeout: 45 minutes for install and upgrade, 15 minutes for uninstall, 30 minutes for cleanup, and 5 minutes for services.
+
+## Homebrew environment
+
+Brewwery adds two variables to Homebrew's environment and nothing else:
 
 ```bash
 HOMEBREW_NO_AUTO_UPDATE=1
 HOMEBREW_NO_ANALYTICS=1
 ```
 
-This prevents Homebrew from auto-updating or sending analytics during Brewwery operations.
+Homebrew therefore never updates itself in the middle of an operation, and sends no analytics for commands Brewwery runs.
 
-## Supported Commands
+## Commands Brewwery can run
 
-The complete list of Homebrew commands Brewwery can execute:
+This is the complete list:
 
 ```bash
 # Read-only
 brew --version
 brew config
 brew list --formula --json=v2
+brew list --formula --versions --json   # fallback for older Homebrew
 brew list --cask --json=v2
-brew outdated --json=v2
-brew services list --json
-brew cleanup -n               # preview only
-brew doctor
+brew list --cask --versions --json      # fallback for older Homebrew
+brew leaves
+brew uses --installed <formula>
 brew search --formula <query>
 brew search --cask <query>
 brew info --json=v2 <formula>
 brew info --cask --json=v2 <cask>
-brew leaves
-brew uses --installed <formula>
+brew outdated --json=v2
 brew tap
+brew services list --json
+brew cleanup -n
+brew doctor
 
-# Mutating (require confirmation)
+# Changes Homebrew or writes a file — always confirmed or explicitly requested
 brew update
-brew upgrade <formula>
-brew upgrade --cask <cask>
-brew upgrade                  # upgrade all
-brew services start <service>
-brew services stop <service>
-brew services restart <service>
-brew cleanup
-brew bundle dump --force --file=<path>
 brew install <formula>
 brew install --cask <cask>
 brew uninstall <formula>
 brew uninstall --cask <cask>
+brew upgrade <formula>
+brew upgrade --cask <cask>
+brew upgrade
 brew tap <owner/repository>
 brew untap <owner/repository>
+brew services start|stop|restart <service>
+brew cleanup
+brew bundle dump --force --file=<path>
 ```
 
-The background Dock badge uses only `brew outdated --json=v2`. It does not run `brew update` or any package mutation. Tap names must match a strict ASCII `owner/repository` format before the Rust runner receives them.
+The Dock badge runs only `brew outdated --json=v2`.
 
-No other commands are possible. There is no `sudo`, no arbitrary shell access, and no generic command runner.
+## External links
 
+Links open in your default browser, and only when they match an allowlist: `www.brewwery.com`, `brewwery.com`, `docs.brewwery.com`, `brew.sh`, `docs.brew.sh`, and the Brewwery repository on GitHub. Links must use HTTPS; anything else is refused.
 
-## Data Storage
+## The app itself
 
-- **Operation history** — stored in renderer `localStorage`, never sent anywhere
-- **Settings** — stored in Electron `userData` on the local filesystem
-- **No cookies** for tracking
-- **No network calls** to external servers from the desktop app
-- **History is trimmed** — large stdout/stderr output is capped to keep the app responsive
+- Signed with an Apple Developer ID and notarized by Apple
+- Built with the hardened runtime and no entitlements
+- Updates are delivered by [Sparkle](https://sparkle-project.org) over HTTPS and must carry a valid EdDSA signature from the Brewwery release key, in addition to Apple's code signature
 
-## What Brewwery Does NOT Include
+## Data on your Mac
 
-- No telemetry or crash reporting
-- No cloud sync or backup
-- No authentication or accounts
-- No paid features, pro tiers, or subscriptions
-- No donation or support links
-- No automatic updates (yet)
-- No sudo or elevated privileges
-- No background processes that modify Homebrew state
+| Data | Location |
+| --- | --- |
+| Settings | `~/Library/Preferences/com.brewwery.app.plist` |
+| Operation history (last 100, output trimmed) | `~/Library/Application Support/Brewwery/history.json` |
+| Favorites | `~/Library/Application Support/Brewwery/favorites.json` |
+| Logs | Unified logging, subsystem `com.brewwery.app` |
+
+None of it is uploaded. Brewwery's only network requests of its own are update checks; everything else that uses the network is Homebrew doing what you asked.
+
+## Reporting a vulnerability
+
+Please report security issues privately as described in the [security policy](https://github.com/brewwery/brewwery/security/policy), not in a public issue.
