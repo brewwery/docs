@@ -64,9 +64,13 @@ The progress panel stays open with the full output, and the same output is saved
 - Run `brew services info <name>` in Terminal for details.
 - Some services must be initialized first — for example, databases often print setup steps in their caveats. Open the package's details to read them.
 
-## The Dock badge does not update
+## The Dock badge and the app disagree
 
-The badge is refreshed in the background from `brew outdated`, which only knows about updates Homebrew has fetched. Run **Check for updates** on the Updates page to refresh Homebrew's information.
+They cannot: since 1.0.1 the badge, the sidebar, the status bar and the menu bar all show the same list. If the number looks wrong, it is the list that is out of date — it is re-read in the background every 30 minutes, and `⌘R` on the Updates page re-reads it now.
+
+The count also only knows about updates Homebrew has already fetched. Run **Check for updates** on the Updates page to run `brew update` first.
+
+To hide the badge entirely, turn it off in **Settings → Dock**.
 
 ## Brewwery does not update itself
 

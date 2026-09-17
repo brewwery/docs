@@ -81,7 +81,9 @@ Keep everything current:
 - Every outdated formula and cask with installed and latest versions
 - Upgrade a single package or **Upgrade all**
 - **Check for updates** runs `brew update` to refresh Homebrew's package information, after confirmation
-- A Dock badge shows the number of outdated packages; background checks only read `brew outdated` and never change anything
+- The same count appears next to Updates in the sidebar, in the status bar, in the menu bar, and on the Dock icon — all four read one list
+- The page header says when that count was last read; background checks only run `brew outdated` and never change anything
+- The Dock badge can be switched off in **Settings → Dock**
 
 <ThemeImage
   light="/screenshots/Updates-Light.png"
@@ -141,6 +143,7 @@ History keeps the 100 most recent operations and never leaves your Mac.
 
 - **Homebrew** — detection status, version, prefix, architecture, the paths Brewwery checked, and a validated custom path
 - **Appearance** — System, Dark, or Light
+- **Dock** — show or hide the outdated package count on the Dock icon
 - **Application updates** — automatic checks, pre-release versions, and **Check for updates now**
 - **History** — export or clear
 - **About** — version, channel, and license, **Copy diagnostics** for bug reports, and links to the website and release notes
@@ -177,7 +180,7 @@ Installs, uninstalls, upgrades, service actions, and cleanup run as operations:
 Brewwery adds an item to the menu bar with quick access to:
 
 - Open Brewwery
-- Check for updates
+- Check for updates, with the number of outdated packages beside it
 - Run doctor
 - Settings
 - Quit

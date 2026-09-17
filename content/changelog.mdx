@@ -2,6 +2,24 @@
 
 All notable changes to Brewwery.
 
+## v1.0.1 — One Outdated Count
+
+The Dock badge counted outdated packages on its own, so nothing inside the window explained the number and it stayed stale after an upgrade. There is now one list, and every counter reads it.
+
+### Added
+- The outdated count appears next to Updates in the sidebar, in the status bar, and in the menu bar.
+- The Updates page names the command behind the count and when it last ran.
+- A Dock section in Settings switches the badge off.
+
+### Changed
+- The outdated list loads at launch alongside the installed packages.
+- Background refreshes are silent, and a failed background check keeps the last good list.
+- Page headers keep their buttons at full width; longer subtitles wrap instead.
+
+### Fixed
+- Upgrading from inside Brewwery clears the Dock badge immediately.
+- A silent refresh no longer leaves the Updates page showing "Loading updates...".
+
 ## v1.0.0 — Native macOS App
 
 Brewwery is now a native macOS application. It replaces the Electron, React, and Rust build of 0.9.7 with Swift 6, SwiftUI, and AppKit, and keeps the same features, Homebrew commands, and validation rules.
