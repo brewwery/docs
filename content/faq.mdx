@@ -74,7 +74,7 @@ Yes. The Taps page lists your taps and can add or remove them after confirmation
 
 ### Can I install from a Brewfile?
 
-Brewwery can export your setup to a Brewfile and read one, but installing from a Brewfile is done in Terminal with `brew bundle install`.
+Yes. Read a Brewfile on the Brewfile page and Brewwery compares it with this Mac, then **Install missing** installs only the taps, formulae, and casks you do not have yet. Brewwery writes its own list of validated names for that, so Homebrew never runs Ruby code from the original file. `mas`, `vscode`, and other entries only `brew bundle` knows are listed as skipped — run `brew bundle install` in Terminal for those.
 
 ### Can I use Brewwery and Terminal together?
 

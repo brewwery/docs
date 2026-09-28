@@ -29,7 +29,8 @@ Every installed formula in one table:
 - Filters for **All formulae**, **Leaves** (formulae nothing else depends on), **On request**, and **Dependencies**
 - Sort by name, version, or status, and filter by typing in the page header
 - A details panel with homepage, versions, dependencies, installed dependents, and caveats
-- Actions to uninstall, copy the package name, or copy the install, uninstall, and upgrade commands
+- Actions to uninstall, pin or unpin the version, copy the package name, or copy the install, uninstall, and upgrade commands
+- A **Pinned** badge on formulae held with `brew pin`
 
 <ThemeImage
   light="/screenshots/Packages-Light.png"
@@ -119,8 +120,11 @@ Run `brew doctor` and read the result as a list of issues instead of a wall of t
 
 - **Export** your current setup to a Brewfile with `brew bundle dump`
 - **Read** any Brewfile — type a path or choose a file — to see its taps, formulae, casks, and Mac App Store apps grouped by type
+- **Compare** it with this Mac: what is already installed, what is missing, and which lines Brewwery skips
+- **Install missing** taps, formulae, and casks after confirmation, with live output
+- **Starter Brewfiles** to open, compare, and copy
 
-Brewwery never runs `brew bundle install` for you; reading a Brewfile is read-only.
+A Brewfile is Ruby, and one someone sent you can contain arbitrary code, so Homebrew never reads your file. Brewwery parses it itself and writes a new list with one validated, quoted name per line — `tap`, `brew`, and `cask` only — then runs `brew bundle install --no-upgrade` on that list. Options such as `args:` or `restart_service:`, `mas` and `vscode` entries, and conditions around lines are not carried over; the comparison lists them as skipped.
 
 ### Commands
 
@@ -133,7 +137,8 @@ A reference of common Homebrew commands with a short explanation and a copy butt
 A local log of every operation Brewwery runs:
 
 - Command, target, status, time, and full output for each operation
-- Filters for failed and cancelled operations, and for installs, uninstalls, upgrades, metadata updates, taps, services, cleanup, doctor, and Brewfile exports
+- Filters for failed and cancelled operations, and for installs, uninstalls, upgrades, pins, metadata updates, taps, services, cleanup, doctor, and Brewfile exports and installs
+- **Report** on a failed entry opens a problem report with its output
 - Search across commands and output
 - Export the log as JSON, or clear it
 
@@ -146,7 +151,7 @@ History keeps the 100 most recent operations and never leaves your Mac.
 - **Dock** — show or hide the outdated package count on the Dock icon
 - **Application updates** — automatic checks, pre-release versions, and **Check for updates now**
 - **History** — export or clear
-- **About** — version, channel, and license, **Copy diagnostics** for bug reports, and links to the website and release notes
+- **About** — version, channel, and license, **Report a problem…**, **Copy diagnostics**, and links to the website and release notes
 
 <ThemeImage
   light="/screenshots/Settings-Light.png"
@@ -161,8 +166,22 @@ Installs, uninstalls, upgrades, service actions, and cleanup run as operations:
 - Output streams live into a progress panel at the bottom of the window
 - Only one operation that changes Homebrew runs at a time
 - **Cancel** stops Homebrew and every process it started, such as downloads
-- Each kind of operation has a safety timeout: 45 minutes for install and upgrade, 15 minutes for uninstall, 30 minutes for cleanup, and 5 minutes for services
-- The panel closes by itself when an operation succeeds; failures stay open with the full output
+- Each kind of operation has a safety timeout: 45 minutes for install and upgrade, 90 minutes for a Brewfile install, 15 minutes for uninstall, 30 minutes for cleanup, and 5 minutes for services
+- The panel closes by itself when an operation succeeds; failures stay open with the full output and a **Report this failure** button
+
+## Reporting a problem
+
+**Report a problem…** is in Settings › About, the Help menu, and the menu bar; failed operations and failed History entries have their own **Report** button. The report window shows the whole report before anything leaves your Mac:
+
+- Describe what happened, and choose whether to include environment details (Brewwery, macOS, and Homebrew versions, Mac model, package counts) and the last 60 lines of Homebrew output
+- Paths in your home folder appear as `~`
+- **Open GitHub issue** (`⌘↩`) opens a pre-filled issue in your browser, **Email…** opens a message to pint@brewwery.com in your mail app, and **Copy** puts the report on the clipboard as Markdown
+
+You press Send or Submit yourself — Brewwery has no server and sends nothing in the background.
+
+## Languages
+
+Brewwery follows the language set in macOS. It is available in English and German; French, Spanish, and Portuguese are planned for the next version. To use a different language for Brewwery only, choose it in **System Settings › General › Language & Region › Applications**.
 
 ## Keyboard
 
@@ -171,6 +190,7 @@ Installs, uninstalls, upgrades, service actions, and cleanup run as operations:
 | `⌘K` | Search packages |
 | `⌘R` | Refresh the current page |
 | `⌘,` | Settings |
+| `⌘1`…`⌘9` | Dashboard, Discover, Search, Favorites, Packages, Casks, Taps, Updates, Services |
 | `↑` `↓` | Move through table rows |
 | `Home` `End` | First or last row |
 | `Return` or `Space` | Open the selected row's details |
@@ -182,5 +202,6 @@ Brewwery adds an item to the menu bar with quick access to:
 - Open Brewwery
 - Check for updates, with the number of outdated packages beside it
 - Run doctor
+- Report a problem
 - Settings
 - Quit

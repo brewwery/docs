@@ -34,6 +34,7 @@ SwiftUI view
 | Search queries | The same character set as cask tokens; up to 80 characters |
 | Taps | Exactly `owner/repository`, using ASCII letters, digits, `-`, `_`, and `.` |
 | Brewfiles to read | An absolute path to an existing file named `Brewfile` or ending in `.brewfile`, up to 1 MB |
+| Brewfiles to install | Only files Brewwery wrote to its own temporary folder, re-checked immediately before running: comments and `tap`, `brew`, or `cask` lines with one validated, quoted name |
 | Custom Homebrew path | Absolute, an executable file, and must answer `brew --version` |
 
 Spaces, shell metacharacters, quotes, redirection, and newlines never reach Homebrew.
@@ -48,6 +49,8 @@ Spaces, shell metacharacters, quotes, redirection, and newlines never reach Home
 | `brew update` | Yes |
 | Start, stop, or restart a service | Yes |
 | Add or remove a tap | Yes |
+| Pin or unpin a formula | Yes |
+| Install the missing items of a Brewfile | Yes, after the comparison |
 | Cleanup | Yes, and only after a preview |
 
 Each confirmation shows the exact command that will run.
@@ -56,7 +59,7 @@ Each confirmation shows the exact command that will run.
 
 - Only one operation that changes Homebrew runs at a time.
 - Cancelling an operation signals Homebrew's whole process group, so the downloads and `git` processes it started stop too. A process that ignores the request is force-stopped after five seconds.
-- Operations stop automatically after a fixed timeout: 45 minutes for install and upgrade, 15 minutes for uninstall, 30 minutes for cleanup, and 5 minutes for services.
+- Operations stop automatically after a fixed timeout: 45 minutes for install and upgrade, 90 minutes for a Brewfile install, 15 minutes for uninstall, 30 minutes for cleanup, and 5 minutes for services.
 
 ## Homebrew environment
 
@@ -82,6 +85,7 @@ brew list --formula --versions --json   # fallback for older Homebrew
 brew list --cask --json=v2
 brew list --cask --versions --json      # fallback for older Homebrew
 brew leaves
+brew list --pinned
 brew uses --installed <formula>
 brew search --formula <query>
 brew search --cask <query>
@@ -106,7 +110,10 @@ brew tap <owner/repository>
 brew untap <owner/repository>
 brew services start|stop|restart <service>
 brew cleanup
+brew pin <formula>
+brew unpin <formula>
 brew bundle dump --force --file=<path>
+brew bundle install --no-upgrade --file=<path>   # only a list Brewwery wrote itself
 ```
 
 The Dock badge runs only `brew outdated --json=v2`.

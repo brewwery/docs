@@ -2,6 +2,23 @@
 
 All notable changes to Brewwery.
 
+## v1.1.0 — Report, Brewfile & Pinning
+
+Ways to act on what Brewwery shows: report a problem without leaving the app, install a Brewfile's missing packages, hold a formula at its version — and a German interface.
+
+### Added
+- **Report a problem** from Settings, the Help menu, and the menu bar, and **Report this failure** from a failed operation or History entry. You review the report, then open it as a GitHub issue or an email and send it yourself. Nothing is sent automatically.
+- **Brewfile**: compare a Brewfile with this Mac and install only what is missing. Brewwery writes its own install list, so Homebrew never runs Ruby from a file someone sent you.
+- **Pin formulae**: a pinned formula keeps its version, is skipped by Upgrade all, and is not counted as outdated.
+- A **Go** menu: `⌘1`…`⌘9` switch between the first nine pages.
+- German interface. French, Spanish, and Portuguese are planned for the next version.
+
+### Changed
+- Page headers move their buttons onto a second row when a translation makes them too wide.
+
+### Fixed
+- Settings › About no longer lists Apple Silicon as the only primary platform.
+
 ## v1.0.1 — One Outdated Count
 
 The Dock badge counted outdated packages on its own, so nothing inside the window explained the number and it stayed stale after an upgrade. There is now one list, and every counter reads it.

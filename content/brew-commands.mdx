@@ -43,7 +43,8 @@ For the complete list, see `brew help` or the [official manual](https://docs.bre
 | `brew upgrade <formula>` | Upgrade one formula | Updates → Upgrade |
 | `brew upgrade --cask <cask>` | Upgrade one cask | Updates → Upgrade |
 | `brew upgrade` | Upgrade everything | Updates → Upgrade all |
-| `brew pin <formula>` | Hold a formula at its current version | Terminal only |
+| `brew pin <formula>` | Hold a formula at its current version | Package details → Pin version |
+| `brew unpin <formula>` | Allow a pinned formula to upgrade again | Package details → Unpin version, or Updates → Unpin |
 
 `brew update` only refreshes information — it does not upgrade anything. Run `brew upgrade` afterwards to install new versions.
 
@@ -79,7 +80,7 @@ For the complete list, see `brew help` or the [official manual](https://docs.bre
 | Command | What it does | In Brewwery |
 | --- | --- | --- |
 | `brew bundle dump --file=<path>` | Write your setup to a Brewfile | Brewfile → Export Brewfile |
-| `brew bundle install --file=<path>` | Install everything in a Brewfile | Terminal only |
+| `brew bundle install --file=<path>` | Install everything in a Brewfile | Brewfile → Install missing items (on a list Brewwery writes, with `--no-upgrade`) |
 | `brew bundle check --file=<path>` | Check whether a Brewfile is satisfied | Terminal only |
 
 Commands marked **Terminal only** are not run by Brewwery. See [Security](/security) for the exact list of commands Brewwery can run.
