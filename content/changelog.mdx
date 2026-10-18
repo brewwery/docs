@@ -2,6 +2,27 @@
 
 All notable changes to Brewwery.
 
+## v1.1.1 - Reliability & Background Saving
+
+### Fixed
+- Packaging uses SwiftPM's actual product directory and verifies the executable's compiled version/build against Info.plist, both architectures, resources, signatures, and linked Mach-O UUIDs.
+- Mutating operations reserve their slot before Homebrew detection. Metadata updates, taps, and pinning share the coordinator; the runner independently rejects overlapping mutations.
+- Buffered commands support cancellation, timeouts, and explicit output-size errors. Live output and pending UI events are bounded, with split UTF-8 characters preserved.
+- Package and service lists refresh after failure or cancellation because Homebrew may have applied part of a change.
+- Detail drawers ignore stale responses. Failed dependent checks show Retry instead of claiming that no packages depend on a formula.
+- Option-shaped package, cask, service, tap, and search arguments are rejected before spawn.
+- Appcast generation uses only the current DMG, avoiding stale enclosure URLs and unpublished delta updates.
+
+### Improved
+- Favorites and History encode, back up, and atomically write JSON on a serial background queue. Rapid changes keep only the latest pending snapshot per store.
+- Normal quit waits for pending saves. Storage errors remain visible with Retry, and quitting after a failed save asks before discarding changes. Unreadable JSON is backed up before replacement.
+- About and Settings credit [by Made Büro](https://github.com/madeburo). Bundles include the MIT license and Sparkle's third-party notices.
+- Isolated tests and universal packaging checks run in native CI. A dedicated QA profile supports clean-profile install and restart checks without replacing the working profile.
+
+### Verification scope
+- 218 isolated tests passed; a packaged clean QA-profile install and restart passed on the local Apple Silicon Mac.
+- Intel hardware, macOS 14, and a complete manual VoiceOver pass remain untested. Initial JSON reads and manual History export remain synchronous; force-quit can lose changes not yet saved.
+
 ## v1.1.0 — Report, Brewfile & Pinning
 
 Ways to act on what Brewwery shows: report a problem without leaving the app, install a Brewfile's missing packages, hold a formula at its version — and a German interface.

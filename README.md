@@ -2,9 +2,11 @@
 
 Documentation site for [Brewwery](https://www.brewwery.com) — the native macOS app for Homebrew.
 
-The docs cover installing and using Brewwery 1.0, Homebrew basics and commands, troubleshooting, the security model, the Swift architecture, and development and release workflows.
+The docs cover installing and updating Brewwery 1.1.1, Homebrew basics and commands, troubleshooting, the security model, the Swift architecture, and development and release workflows.
 
 Hosted at [docs.brewwery.com](https://docs.brewwery.com).
+
+[by Made Büro](https://github.com/madeburo)
 
 ![og-image](public/og-image.png)
 
@@ -67,6 +69,8 @@ docs/
 ## Deployment
 
 Build with `npm run build` and serve with `npm start` behind the `docs.brewwery.com` domain.
+
+Publish release documentation only after the corresponding signed, notarized DMG is available. The website owns `appcast.xml` and the download; this repository documents their behavior but does not generate or sign updates.
 
 Screenshots come from `Scripts/screenshots.sh` in the [app repository](https://github.com/brewwery/brewwery); copy the generated PNGs into `public/screenshots/`.
 

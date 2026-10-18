@@ -13,7 +13,7 @@ git clone https://github.com/brewwery/brewwery.git
 cd brewwery
 swift build          # compile
 swift run Brewwery   # run the app
-swift test           # run the test suites
+BREWWERY_LIVE=0 swift test --skip BrewweryLiveTests  # isolated tests only
 ```
 
 To work in Xcode, open `Package.swift`.
@@ -24,8 +24,9 @@ To work in Xcode, open `Package.swift`.
 | --- | --- |
 | `swift build` | Build the core library and the app |
 | `swift run Brewwery` | Run the app without packaging |
-| `swift test` | Core, app, and rendering tests; nothing touches your Homebrew |
+| `BREWWERY_LIVE=0 swift test --skip BrewweryLiveTests` | Isolated core, app, and rendering tests, with real Homebrew explicitly excluded |
 | `Scripts/make-app.sh` | Build a universal `dist/Brewwery.app`, ad-hoc signed for local use |
+| `bash Scripts/verify-app.sh dist/Brewwery.app` | Verify compiled version/build, bundle metadata, architectures, resources, and signatures |
 | `Scripts/screenshots.sh` | Capture the website and docs screenshots in both themes |
 | `Scripts/release.sh --sign "Developer ID Application: …"` | Build, sign, notarize, and package a release |
 
@@ -75,17 +76,32 @@ One-time setup:
 
 For each release:
 
-1. Update `CFBundleShortVersionString` and `CFBundleVersion` in `Packaging/Info.plist`, and `CHANGELOG.md`.
+1. Update `AppInfo` version/build constants, `CFBundleShortVersionString` and `CFBundleVersion` in `Packaging/Info.plist`, `CHANGELOG.md`, and the release notes in `docs/release-notes/`.
 2. Run:
    ```bash
    Scripts/release.sh --sign "Developer ID Application: …" \
      --site-public "../site/public"
    ```
-   The script builds the universal app, signs it inside out with the hardened runtime, notarizes and staples it, wraps it in a signed DMG, notarizes and staples the DMG, and regenerates the Sparkle appcast. With `--site-public` it also copies the DMG to `download/brewwery.dmg` and the appcast to `appcast.xml` in the website.
-3. Tag the release and upload `dist/appcast/Brewwery-<version>.dmg` to its GitHub release — the appcast points there.
-4. Deploy the website so `https://www.brewwery.com/appcast.xml` and `/download/brewwery.dmg` serve the new files.
+   The script first runs isolated tests and checks the Sparkle public key. It then builds and verifies a universal app, signs it inside out with the hardened runtime, uploads the app and DMG to Apple for notarization, and staples the returned tickets. Notarization is an external upload of release artifacts; credentials stay in the keychain.
+
+   The appcast is generated in a release-specific directory containing only the current DMG, with embedded notes and delta generation disabled. Reusing a directory of old releases with a new download prefix can produce invalid old URLs. With `--site-public`, the script copies the DMG and feed into the website's local `public/` folder; it does not publish them.
+3. Verify the signed app inside the DMG, bundle version/build, both architectures, notarization tickets, and Sparkle signature. The release script runs `Scripts/verify-appcast.swift` against the exact DMG and the bundle's public key; offline regression cases run with `swift Scripts/test-appcast.swift "$PWD/Scripts/verify-appcast.swift"`. Commit and tag the matching source, then upload `dist/appcast/Brewwery-<version>.dmg` to that GitHub release.
+4. Download the public artifact and compare its SHA-256 with the signed local DMG. The enclosure URL, byte length, and EdDSA signature must describe this exact file.
+5. Update and deploy the website's version, changelog, DMG, and appcast together, only after the GitHub enclosure is reachable. Publish matching documentation and check the public URLs. A generated feed is not proof of an installed-app update; test download, install, and relaunch separately.
 
 Keep a backup of the Sparkle private key. Without it, installed copies cannot receive updates.
+
+## Clean-profile install and restart QA
+
+The 1.1.1 bundle accepts an isolated profile:
+
+```bash
+dist/Brewwery.app/Contents/MacOS/Brewwery --qa-profile clean-111 -ApplePersistenceIgnoreState YES
+```
+
+Use a new profile name for a clean run. Favorites and History live under `~/Library/Application Support/Brewwery QA/<name>/`; app preferences use `com.brewwery.qa.<name>`. Quit normally and relaunch with the same name to check persistence. The window identifies the QA profile, window-frame autosaving is disabled, and Sparkle is off.
+
+This does not isolate Homebrew itself. Do not install, remove, upgrade, or change services in a QA profile against a working installation. A clean-profile check also does not replace a fresh-account Gatekeeper test, Intel/macOS 14 testing, or a Sparkle update test.
 
 ## Guidelines
 

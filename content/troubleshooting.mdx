@@ -37,7 +37,7 @@ Homebrew package names only use ASCII letters, digits, and `@`, `-`, `_`, `.`, `
 
 ## "Another Homebrew operation is already running"
 
-Brewwery runs one operation that changes Homebrew at a time, so Homebrew never works on two things at once. Wait for the current operation to finish, or cancel it from the progress panel.
+Brewwery runs one operation that changes Homebrew at a time, including metadata updates, taps, and pinning. Wait for the current operation to finish, or cancel it from the progress panel. This guard covers Brewwery only: avoid simultaneous changes from Terminal or another app.
 
 ## An install or upgrade is stuck
 
@@ -47,7 +47,7 @@ To stop it, click **Cancel**. Brewwery stops Homebrew and every process it start
 
 ## An operation failed
 
-The progress panel stays open with the full output, and the same output is saved in **History**. The last lines usually explain the problem. Common causes:
+The progress panel stays open with the error, and bounded output is saved in **History**. Large logs show a marker when trimmed. Lists refresh after failure or cancellation because Homebrew may already have applied part of a change. The last lines usually explain the problem. Common causes:
 
 | Output mentions | Try |
 | --- | --- |
@@ -66,7 +66,7 @@ The progress panel stays open with the full output, and the same output is saved
 
 ## The Dock badge and the app disagree
 
-They cannot: since 1.0.1 the badge, the sidebar, the status bar and the menu bar all show the same list. If the number looks wrong, it is the list that is out of date — it is re-read in the background every 30 minutes, and `⌘R` on the Updates page re-reads it now.
+Since 1.0.1 the badge, sidebar, status bar, and menu bar share the same outdated list. If the number looks wrong, refresh the list: it is re-read in the background every 30 minutes, and `⌘R` on the Updates page re-reads it now. Report a persistent mismatch with the installed app version and a screenshot.
 
 The count also only knows about updates Homebrew has already fetched. Run **Check for updates** on the Updates page to run `brew update` first.
 
@@ -77,6 +77,17 @@ To hide the badge entirely, turn it off in **Settings → Dock**.
 - Check **Settings → Application updates** and click **Check for updates now**.
 - Updates require the downloaded release; a copy built from source does not update automatically.
 - Make sure Brewwery is in `/Applications` and not running from the disk image.
+- Finish any Homebrew operation before installing and relaunching. Version 1.1.1 waits for pending local saves on normal quit and asks before discarding a failed save.
+- Native 1.x releases use Sparkle. Electron 0.9.x requires a manual DMG install.
+- If an update reports a signature or download error, do not disable verification. Download the release DMG from the official website or GitHub and report the error.
+
+## Favorites or History will not save
+
+Version 1.1.1 saves JSON in the background and shows read/write failures instead of hiding them. Check available disk space and access to `~/Library/Application Support/Brewwery/`, then use **Retry** in the app. Do not delete the folder as a first troubleshooting step.
+
+New changes remain in memory after a failed write. Normal quit waits for pending saves; if a save failed, keep the app open and retry unless you explicitly want to discard unsaved changes. Force-quit or power loss can lose pending changes.
+
+If a JSON file cannot be read, a later save first preserves it as an `.unreadable-<UUID>.bak` file. Keep that backup if you need to recover previous data. Initial JSON loading and manual History export are still synchronous.
 
 ## Starting over
 

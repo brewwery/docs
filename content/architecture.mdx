@@ -1,6 +1,6 @@
 # Architecture
 
-Brewwery 1.0 is a native macOS application written in Swift 6 with SwiftUI, AppKit, and Foundation. There is no Electron, Node.js, Rust, web view, or JavaScript bridge. It replaces the 0.9.x Electron app and keeps the same screens, Homebrew commands, and validation rules.
+Brewwery 1.1.1 is a native macOS application written in Swift 6 with SwiftUI, AppKit, and Foundation. There is no Electron, Node.js, Rust, web view, or JavaScript bridge. The native 1.x app replaces the 0.9.x Electron app.
 
 ## Overview
 
@@ -67,9 +67,11 @@ Finds `brew` in this order: a saved custom path, `/opt/homebrew/bin/brew`, `/usr
 
 Runs `brew` with `posix_spawn` in its own process group, with the environment Homebrew needs plus `HOMEBREW_NO_AUTO_UPDATE=1` and `HOMEBREW_NO_ANALYTICS=1`. Short commands capture their output; long operations stream standard output and standard error as an `AsyncStream`. Cancelling sends `SIGTERM` to the whole process group and `SIGKILL` five seconds later if needed, so child processes such as `curl` and `git` stop too.
 
+Buffered commands are cancellable and enforce a 16 MB limit per pipe, returning an explicit error rather than truncated JSON. Reads have a 60-second timeout, short mutations five minutes, and custom-path probes ten seconds. Streaming pipes and pending UI output are bounded. The runner independently refuses overlapping mutations and waits for the child to exit before releasing its slot.
+
 ### OperationCoordinator
 
-Owns installs, uninstalls, upgrades, service actions, and cleanup. It allows one mutating operation at a time, enforces the per-operation timeout, collects streamed output for the progress panel, records the result in History, and dismisses the panel shortly after success.
+Owns installs, uninstalls, upgrades, service actions, cleanup, metadata updates, tap changes, and pinning. It reserves a mutation slot before Homebrew detection starts, enforces operation timeouts, collects bounded output, and records results in History. Lists refresh after failures and cancellations as well as success. The guard is process-local: it does not serialize commands started from Terminal or another app.
 
 ### Persistence
 
@@ -79,9 +81,13 @@ Owns installs, uninstalls, upgrades, service actions, and cleanup. It allows one
 | `HistoryStore` | `~/Library/Application Support/Brewwery/history.json`, newest 100 entries |
 | `FavoritesStore` | `~/Library/Application Support/Brewwery/favorites.json` |
 
+`JSONPersistence` coordinates snapshots on the main actor. JSON encoding, recovery copies, and atomic file writes execute on one serial utility queue. Each store keeps at most one in-flight write and the latest pending snapshot; a completed older write cannot erase a newer pending change.
+
+Normal quit waits for pending saves using AppKit's deferred termination reply. On failure, changes stay in memory and the UI offers Retry; quitting then requires a choice to discard them. Unreadable JSON is preserved as an `.unreadable-<UUID>.bak` file before replacement. Force-quit and power loss can still lose unsaved changes. Initial JSON loading and manual History export remain synchronous.
+
 ### AppKit integration
 
-`AppDelegate` installs the menu bar item, refreshes the Dock badge from `brew outdated` in the background, and brings the main window forward from the menu. Application updates go through `AppUpdateController`, which only starts Sparkle inside the signed app bundle that carries a feed URL and public key.
+`AppDelegate` installs the menu bar item, refreshes the Dock badge from the shared outdated list, and brings the main window forward from the menu. Application updates go through `AppUpdateController`. Sparkle requires a configured app bundle with a feed URL and public key; isolated QA profiles disable it. Distributed updates carry both Developer ID and Sparkle EdDSA signatures.
 
 ## Errors
 

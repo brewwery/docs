@@ -1,6 +1,15 @@
 # Roadmap
 
-## Current: v1.1 — Report, Brewfile & Pinning
+## Current: v1.1.1 - Reliability
+
+- Verified bundle version/build, native architectures, resources, and signatures
+- One coordinated Homebrew mutation at a time, including metadata, taps, and pinning
+- Cancellable reads, safety timeouts, and bounded process output
+- Background JSON saving, Retry for storage failures, and pending-save handling on quit
+- Stale-detail protection and visible errors when dependent checks fail
+- Version-specific Sparkle appcast generation without unpublished delta files
+
+## v1.1 - Report, Brewfile & Pinning
 
 - Report a problem as a GitHub issue or email you review and send yourself
 - Compare a Brewfile with this Mac and install only what is missing
@@ -21,6 +30,8 @@ Brewwery 1.0 is a complete native rewrite in Swift:
 
 ## Next
 
+- **Release QA** - hardware verification on Intel and macOS 14, a full manual VoiceOver pass, and installed-release Sparkle update/relaunch checks. Universal binary verification is not a substitute for these tests.
+- **Persistence follow-up** - initial JSON reads and manual History export still run synchronously. Background writes do not protect pending changes from force-quit or power loss.
 - **French, Spanish, and Portuguese** — the next interface languages, followed by the other languages of [brewwery.com](https://www.brewwery.com)
 
 Priorities follow feedback. Suggest a feature in [GitHub Discussions](https://github.com/brewwery/brewwery/discussions) or pick up an [issue](https://github.com/brewwery/brewwery/issues).

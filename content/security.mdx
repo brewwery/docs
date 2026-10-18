@@ -37,7 +37,7 @@ SwiftUI view
 | Brewfiles to install | Only files Brewwery wrote to its own temporary folder, re-checked immediately before running: comments and `tap`, `brew`, or `cask` lines with one validated, quoted name |
 | Custom Homebrew path | Absolute, an executable file, and must answer `brew --version` |
 
-Spaces, shell metacharacters, quotes, redirection, and newlines never reach Homebrew.
+Package, cask, service, tap, and search identifiers reject spaces, shell metacharacters, quotes, redirection, and newlines. Option-shaped identifiers beginning with `-` are rejected before spawn. File paths use their own validation rules and are passed as individual arguments, never through a shell.
 
 ## Changes need confirmation
 
@@ -57,9 +57,10 @@ Each confirmation shows the exact command that will run.
 
 ## Operation safety
 
-- Only one operation that changes Homebrew runs at a time.
+- Only one operation that changes Homebrew runs at a time within Brewwery. The coordinator reserves the slot before detection; the runner also rejects overlapping mutations. Metadata updates, taps, and pinning use this guard too. Commands started from Terminal or other apps are outside it.
 - Cancelling an operation signals Homebrew's whole process group, so the downloads and `git` processes it started stop too. A process that ignores the request is force-stopped after five seconds.
 - Operations stop automatically after a fixed timeout: 45 minutes for install and upgrade, 90 minutes for a Brewfile install, 15 minutes for uninstall, 30 minutes for cleanup, and 5 minutes for services.
+- Buffered reads are cancellable with a 60-second timeout; short mutations have a 5-minute limit and path probes 10 seconds. Buffered stdout/stderr are capped at 16 MB per pipe with an explicit error. Streaming output and pending UI events are also bounded.
 
 ## Homebrew environment
 
@@ -120,7 +121,9 @@ The Dock badge runs only `brew outdated --json=v2`.
 
 ## External links
 
-Links open in your default browser, and only when they match an allowlist: `www.brewwery.com`, `brewwery.com`, `docs.brewwery.com`, `brew.sh`, `docs.brew.sh`, and the Brewwery repository on GitHub. Links must use HTTPS; anything else is refused.
+App-owned links open in your default browser only when they match an allowlist: `www.brewwery.com`, `brewwery.com`, `docs.brewwery.com`, `brew.sh`, `docs.brew.sh`, the Brewwery repository on GitHub, and the exact `https://github.com/madeburo` author profile. These links must use HTTPS.
+
+Package homepages reported by Homebrew use a separate check for a well-formed HTTP or HTTPS URL with a host. Problem-report email links are limited to `pint@brewwery.com` and open your mail app; you review and send the message yourself.
 
 ## The app itself
 
@@ -137,7 +140,9 @@ Links open in your default browser, and only when they match an allowlist: `www.
 | Favorites | `~/Library/Application Support/Brewwery/favorites.json` |
 | Logs | Unified logging, subsystem `com.brewwery.app` |
 
-None of it is uploaded. Brewwery's only network requests of its own are update checks; everything else that uses the network is Homebrew doing what you asked.
+Favorites and History encode and save JSON on a serial background queue. Normal quit waits for pending writes; failures show Retry, and unreadable JSON is backed up before replacement. Unsaved changes can still be lost on force-quit or power loss.
+
+These files are not uploaded automatically. Sparkle checks the appcast and downloads app updates; automatic checks can be disabled in Settings. Homebrew fetches metadata and packages. Opening a website, package homepage, GitHub issue, or email is user-initiated. Review diagnostics and problem reports before sharing them. The website's analytics policy is separate from the desktop app.
 
 ## Reporting a vulnerability
 

@@ -48,6 +48,17 @@ Brewwery checks for new versions of itself automatically and installs them throu
 
 Application updates are separate from Homebrew: updating Brewwery never touches your packages, and upgrading packages never updates Brewwery.
 
+To update a native 1.x installation to 1.1.1:
+
+1. Finish any running Homebrew operation and open Brewwery from **Applications**, not from the mounted DMG.
+2. Open **Settings → Application updates → Check for updates now**.
+3. Review the release notes, then let Sparkle download, verify, install, and relaunch the app.
+4. Check **Settings → About** for version **1.1.1**.
+
+Settings, Favorites, and History keep their existing locations. Do not delete app data to update. If the update is unavailable, the DMG is the manual fallback: quit Brewwery and replace only the app in Applications.
+
+The older Electron 0.9.x app has no Sparkle updater. Install the native release from the DMG instead; its settings, Favorites, and History use a different format and are not automatically migrated.
+
 ## Uninstall
 
 Quit Brewwery, then remove the app and its local data:
