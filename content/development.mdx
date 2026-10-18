@@ -3,7 +3,9 @@
 ## Requirements
 
 - **macOS 14** or later
-- **Xcode 16** or later, or a Swift 6 toolchain
+- **Xcode 26.6** or later for universal packaging. Isolated tests also pass with Xcode 16.4,
+  but that older SwiftPM toolchain fails to generate this package's universal build graph.
+  This build requirement does not change the app's macOS 14 minimum.
 - **Homebrew**, if you want the app to manage real packages — tests never need it
 
 ## Quick start
