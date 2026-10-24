@@ -65,7 +65,7 @@ export default async function RootLayout({
         <Layout
           navbar={navbar}
           pageMap={await getPageMap()}
-          docsRepositoryBase="https://github.com/brewwery/docs/tree/main/content"
+          docsRepositoryBase="https://github.com/brewwery/docs/tree/main"
           footer={footer}
           sidebar={{ defaultMenuCollapseLevel: 1, toggleButton: true }}
         >
