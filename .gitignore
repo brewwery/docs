@@ -9,3 +9,10 @@ out/
 .DS_Store
 *.tsbuildinfo
 next-env.d.ts
+
+# generated search index
+public/_pagefind/
+
+# local environment
+.env*
+!.env.example

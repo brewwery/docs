@@ -3,5 +3,6 @@ import nextra from "nextra";
 const withNextra = nextra({});
 
 export default withNextra({
+  poweredByHeader: false,
   images: { unoptimized: true },
 });
